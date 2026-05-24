@@ -1,7 +1,7 @@
 const TOKEN_KEY = "samba2_auth_token";
 
 const API_BASE = import.meta.env.PROD
-  ? "https://medelvsb3-production.up.railway.app"
+  ? "https://medelvsb3.onrender.com"
   : "";
 
 export function getStoredToken(): string | null {

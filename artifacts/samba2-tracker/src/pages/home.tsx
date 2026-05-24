@@ -6,7 +6,7 @@ import {
   getListRecordsQueryKey,
   getGetRecordStatsQueryKey,
 } from "@workspace/api-client-react";
-import { Record } from "@workspace/api-client-react/src/generated/api.schemas";
+type Record = { id: number; patientName: string; dob: string; phone: string; serial: string; implant: string; issueDescription: string; conditions: string; skin: string[]; visual: string[]; audio: string[]; physical: string[]; accessory: string[]; connectivity: string[]; steps: string[]; resolved: string; resolvedHow: string; nextAction: string; contactName: string; contactEmail: string; };
 import { Download } from "lucide-react";
 import {
   Table,
