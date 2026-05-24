@@ -1,5 +1,9 @@
 const TOKEN_KEY = "samba2_auth_token";
 
+const API_BASE = import.meta.env.PROD
+  ? "https://medelvsb3-production.up.railway.app"
+  : "";
+
 export function getStoredToken(): string | null {
   return sessionStorage.getItem(TOKEN_KEY);
 }
@@ -14,7 +18,7 @@ export function clearStoredToken(): void {
 
 export async function login(password: string): Promise<boolean> {
   try {
-    const res = await fetch("/api/auth/login", {
+    const res = await fetch(`${API_BASE}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ password }),
