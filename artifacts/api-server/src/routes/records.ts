@@ -7,15 +7,10 @@ import {
   UpdateRecordResponse, ListRecordsResponse, DeleteRecordResponse,
   GetRecordStatsResponse,
 } from "@workspace/api-zod";
-import { requireAdmin, type AuthUser } from "../middleware/requireAuth";
-import type { Request } from "express";
-
-type AuthRequest = Request & { user: AuthUser };
 
 const router: IRouter = Router();
 
-// Stats — admin only
-router.get("/records/stats", requireAdmin, async (req, res): Promise<void> => {
+router.get("/records/stats", async (req, res): Promise<void> => {
   const records = await db.select().from(recordsTable);
   const total = records.length;
   const resolved = records.filter((r) => r.resolved === "Yes").length;
@@ -25,19 +20,12 @@ router.get("/records/stats", requireAdmin, async (req, res): Promise<void> => {
   res.json(GetRecordStatsResponse.parse({ total, resolved, unresolved, bonebridge, soundbridge }));
 });
 
-// List records — admin sees all, staff sees own
 router.get("/records", async (req, res): Promise<void> => {
-  const user = (req as AuthRequest).user;
-  const all = await db.select().from(recordsTable);
-  const records = user.role === "admin"
-    ? all
-    : all.filter((r) => r.submittedBy === user.username);
+  const records = await db.select().from(recordsTable);
   res.json(ListRecordsResponse.parse(records));
 });
 
-// Create record — sets submittedBy from token
 router.post("/records", async (req, res): Promise<void> => {
-  const user = (req as AuthRequest).user;
   const parsed = CreateRecordBody.safeParse(req.body);
   if (!parsed.success) {
     req.log.warn({ errors: parsed.error.message }, "Invalid record body");
@@ -65,32 +53,22 @@ router.post("/records", async (req, res): Promise<void> => {
     nextAction: parsed.data.nextAction ?? "",
     contactName: parsed.data.contactName ?? "",
     contactEmail: parsed.data.contactEmail ?? "",
-    submittedBy: user.username,
   }).returning();
 
   res.status(201).json(GetRecordResponse.parse(record));
 });
 
-// Get single record
 router.get("/records/:id", async (req, res): Promise<void> => {
-  const user = (req as AuthRequest).user;
   const params = GetRecordParams.safeParse(req.params);
   if (!params.success) { res.status(400).json({ error: params.error.message }); return; }
 
   const [record] = await db.select().from(recordsTable).where(eq(recordsTable.id, params.data.id));
   if (!record) { res.status(404).json({ error: "Record not found" }); return; }
 
-  // Staff can only access own records
-  if (user.role === "staff" && record.submittedBy !== user.username) {
-    res.status(403).json({ error: "Access denied" }); return;
-  }
-
   res.json(GetRecordResponse.parse(record));
 });
 
-// Update record — staff can only update own records
 router.put("/records/:id", async (req, res): Promise<void> => {
-  const user = (req as AuthRequest).user;
   const params = UpdateRecordParams.safeParse(req.params);
   if (!params.success) { res.status(400).json({ error: params.error.message }); return; }
 
@@ -98,14 +76,6 @@ router.put("/records/:id", async (req, res): Promise<void> => {
   if (!parsed.success) {
     req.log.warn({ errors: parsed.error.message }, "Invalid record update body");
     res.status(400).json({ error: parsed.error.message }); return;
-  }
-
-  // Check ownership for staff
-  if (user.role === "staff") {
-    const [existing] = await db.select().from(recordsTable).where(eq(recordsTable.id, params.data.id));
-    if (!existing || existing.submittedBy !== user.username) {
-      res.status(403).json({ error: "Access denied" }); return;
-    }
   }
 
   const [record] = await db.update(recordsTable).set({
@@ -134,8 +104,7 @@ router.put("/records/:id", async (req, res): Promise<void> => {
   res.json(UpdateRecordResponse.parse(record));
 });
 
-// Delete — admin only
-router.delete("/records/:id", requireAdmin, async (req, res): Promise<void> => {
+router.delete("/records/:id", async (req, res): Promise<void> => {
   const params = DeleteRecordParams.safeParse(req.params);
   if (!params.success) { res.status(400).json({ error: params.error.message }); return; }
 

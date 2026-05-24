@@ -23,7 +23,6 @@ export const recordsTable = pgTable("records", {
   nextAction: text("next_action").notNull().default(""),
   contactName: text("contact_name").notNull().default(""),
   contactEmail: text("contact_email").notNull().default(""),
-  submittedBy: text("submitted_by").notNull().default(""),
 });
 
 export const insertRecordSchema = createInsertSchema(recordsTable).omit({ id: true });
