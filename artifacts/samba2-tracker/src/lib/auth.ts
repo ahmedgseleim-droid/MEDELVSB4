@@ -2,6 +2,8 @@ const TOKEN_KEY = "samba2_auth_token";
 const ROLE_KEY  = "samba2_role";
 const USER_KEY  = "samba2_username";
 
+const API = "https://medelvsb3.onrender.com";
+
 export type UserRole = "admin" | "staff";
 
 export function getStoredToken(): string | null  { return sessionStorage.getItem(TOKEN_KEY); }
@@ -19,7 +21,7 @@ export async function login(
   password: string
 ): Promise<{ role: UserRole; username: string } | null> {
   try {
-    const res = await fetch("/api/auth/login", {
+    const res = await fetch(`${API}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
