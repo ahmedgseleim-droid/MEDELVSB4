@@ -3,6 +3,14 @@
     "default": "medelvsb",
     "medel": "medelvsb"
   },
-  "targets": {},
+  "targets": {
+    "medelvsb": {
+      "hosting": {
+        "admin": [
+          "medelvibrantap"
+        ]
+      }
+    }
+  },
   "etags": {}
 }

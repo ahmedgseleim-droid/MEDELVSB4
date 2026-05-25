@@ -208,9 +208,10 @@ export function TrackerForm({
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl><SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger></FormControl>
                       <SelectContent>
-                        <SelectItem value="Bonebridge (BCI 601/602)">Bonebridge (BCI 601/602)</SelectItem>
-                        <SelectItem value="Soundbridge (VORP 503)">Soundbridge (VORP 503)</SelectItem>
-                      </SelectContent>
+  <SelectItem value="Bonebridge (BCI 601)">Bonebridge (BCI 601)</SelectItem>
+  <SelectItem value="Bonebridge (BCI 602)">Bonebridge (BCI 602)</SelectItem>
+  <SelectItem value="Soundbridge (VORP 503)">Soundbridge (VORP 503)</SelectItem>
+</SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>

@@ -9,7 +9,6 @@ interface PasswordGateProps {
 }
 
 export function PasswordGate({ onSuccess }: PasswordGateProps) {
-  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError]       = useState("");
   const [loading, setLoading]   = useState(false);
@@ -18,12 +17,12 @@ export function PasswordGate({ onSuccess }: PasswordGateProps) {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const result = await login(username, password);
+    const result = await login("", password);
     setLoading(false);
     if (result) {
       onSuccess(result.role, result.username);
     } else {
-      setError("Incorrect username or password. Please try again.");
+      setError("Incorrect password. Please try again.");
       setPassword("");
     }
   };
@@ -32,7 +31,6 @@ export function PasswordGate({ onSuccess }: PasswordGateProps) {
     <div className="min-h-screen flex items-center justify-center" style={{ background: "#F0F0F0" }}>
       <div className="bg-white rounded-2xl shadow-xl p-10 w-full max-w-sm" style={{ border: "2px solid #C60C30" }}>
 
-        {/* Logo / Header */}
         <div className="mb-8 text-center">
           <div className="flex items-center justify-center gap-2 mb-3">
             <div className="w-3 h-3 rounded-full" style={{ background: "#C60C30" }} />
@@ -49,22 +47,6 @@ export function PasswordGate({ onSuccess }: PasswordGateProps) {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Username — only needed for staff */}
-          <div className="space-y-1.5">
-            <Label htmlFor="username" style={{ color: "#0D0D0D" }}>
-              Username <span style={{ color: "#979594", fontWeight: 400 }}>(Staff only)</span>
-            </Label>
-            <Input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="e.g. USER1"
-              autoComplete="username"
-              style={{ borderColor: "#E4E4E4" }}
-            />
-          </div>
-
           <div className="space-y-1.5">
             <Label htmlFor="password" style={{ color: "#0D0D0D" }}>Password</Label>
             <Input
@@ -94,10 +76,6 @@ export function PasswordGate({ onSuccess }: PasswordGateProps) {
             {loading ? "Signing in…" : "Sign In"}
           </Button>
         </form>
-
-        <p className="text-xs text-center mt-6" style={{ color: "#BEBEBE" }}>
-          Admin: leave username blank · Staff: enter your username
-        </p>
       </div>
     </div>
   );

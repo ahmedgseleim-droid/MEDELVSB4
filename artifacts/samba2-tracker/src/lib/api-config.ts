@@ -1,5 +1,5 @@
 import { setBaseUrl } from "@workspace/api-client-react";
 
-if (import.meta.env.PROD) {
-  setBaseUrl("https://medelvsb3.onrender.com");
-}
+const API = "https://medelvsb3.onrender.com";
+
+setBaseUrl(API);
