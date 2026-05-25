@@ -14,6 +14,20 @@ export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
 });
+
+pool.on("error", (err) => {
+  console.error("Database pool error:", err);
+});
+
+pool.connect((err, client, done) => {
+  if (err) {
+    console.error("Database connection test failed:", err.message);
+  } else {
+    console.log("Database connected successfully");
+    done();
+  }
+});
+
 export const db = drizzle(pool, { schema });
 
 export * from "./schema";
