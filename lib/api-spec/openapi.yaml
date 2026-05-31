@@ -159,6 +159,12 @@ components:
           type: string
         conditions:
           type: string
+        problemFirstOccurred:
+          type: string
+        occurrenceFrequency:
+          type: string
+        specificConditions:
+          type: string
         skin:
           type: array
           items:

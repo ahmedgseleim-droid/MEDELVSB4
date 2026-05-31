@@ -55,6 +55,9 @@ export function TrackerForm({
         implant: editingRecord.implant || "",
         issueDescription: editingRecord.issueDescription || "",
         conditions: editingRecord.conditions || "",
+        problemFirstOccurred: (editingRecord as any).problemFirstOccurred || "",
+        occurrenceFrequency: (editingRecord as any).occurrenceFrequency || "",
+        specificConditions: (editingRecord as any).specificConditions || "",
         skin: editingRecord.skin || [],
         visual: editingRecord.visual || [],
         audio: editingRecord.audio || [],
@@ -227,6 +230,27 @@ export function TrackerForm({
                 )} />
                 <FormField control={form.control} name="conditions" render={({ field }) => (
                   <FormItem><FormLabel>Conditions</FormLabel><FormControl><Textarea className="h-24" {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <FormField control={form.control} name="problemFirstOccurred" render={({ field }) => (
+                  <FormItem><FormLabel>When did the problem first occur?</FormLabel><FormControl><Input placeholder="e.g. 2 weeks ago" {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="occurrenceFrequency" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Constant or Intermittent?</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl><SelectTrigger><SelectValue placeholder="Select frequency" /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        <SelectItem value="Constant">Constant</SelectItem>
+                        <SelectItem value="Intermittent">Intermittent</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="specificConditions" render={({ field }) => (
+                  <FormItem><FormLabel>Any specific conditions when problem occurs?</FormLabel><FormControl><Input placeholder="e.g. outdoors, during calls" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
               </div>
             </div>
