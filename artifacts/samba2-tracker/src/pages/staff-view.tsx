@@ -16,7 +16,7 @@ import { AdhearForm } from "@/components/adhear-form";
 import { PatientReportModal } from "@/components/patient-report-modal";
 import { clearStoredToken } from "@/lib/auth";
 
-type Record = { id: number; patientName: string; dob: string; phone: string; serial: string; implant: string; issueDescription: string; conditions: string; skin: string[]; visual: string[]; audio: string[]; physical: string[]; accessory: string[]; connectivity: string[]; steps: string[]; resolved: string; resolvedHow: string; nextAction: string; contactName: string; contactEmail: string; submittedBy?: string; };
+type Record = { id: number; patientName: string; dob: string; phone: string; serial: string; implant: string; issueDescription: string; conditions: string; problemFirstOccurred?: string; occurrenceFrequency?: string; specificConditions?: string; skin: string[]; visual: string[]; audio: string[]; physical: string[]; accessory: string[]; connectivity: string[]; steps: string[]; resolved: string; resolvedHow: string; nextAction: string; contactName: string; contactEmail: string; submittedBy?: string; };
 type FormMode = "samba2" | "adhear";
 
 interface StaffViewProps { username: string; }
@@ -132,6 +132,9 @@ export default function StaffView({ username }: StaffViewProps) {
                   <TableHead>Serial</TableHead>
                   {formMode === "samba2" && <TableHead>Implant Type</TableHead>}
                   <TableHead className="max-w-[180px]">Issue Description</TableHead>
+                  <TableHead>First Occurred</TableHead>
+                  <TableHead>Frequency</TableHead>
+                  <TableHead>Specific Conditions</TableHead>
                   <TableHead>Resolved</TableHead>
                   <TableHead className="max-w-[180px]">Next Action</TableHead>
                   <TableHead className="text-right sticky right-0 bg-white border-l">Actions</TableHead>
@@ -160,6 +163,9 @@ export default function StaffView({ username }: StaffViewProps) {
                       <TableCell className="whitespace-nowrap">{r.serial}</TableCell>
                       {formMode === "samba2" && <TableCell className="whitespace-nowrap">{r.implant}</TableCell>}
                       <TableCell className="truncate max-w-[180px]" title={r.issueDescription}>{r.issueDescription}</TableCell>
+                      <TableCell className="whitespace-nowrap">{r.problemFirstOccurred || "—"}</TableCell>
+                      <TableCell className="whitespace-nowrap">{r.occurrenceFrequency || "—"}</TableCell>
+                      <TableCell className="truncate max-w-[180px]" title={r.specificConditions}>{r.specificConditions || "—"}</TableCell>
                       <TableCell>
                         <span
                           className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold"

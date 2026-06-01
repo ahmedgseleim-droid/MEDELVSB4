@@ -92,7 +92,7 @@ export default function Home() {
     if (formMode === "samba2") {
       headers = [
         "#", "Patient Name", "DOB", "Phone", "Serial", "Implant Type",
-        "Issue Description", "Conditions",
+        "Issue Description", "Conditions", "First Occurred", "Frequency", "Specific Conditions",
         "Skin Issues", "Visual Inspection", "Audio Issues", "Physical Issues",
         "Accessory Issues", "Connectivity Issues", "Steps Taken",
         "Resolved", "Resolved How", "Next Action",
@@ -103,6 +103,7 @@ export default function Home() {
         escape(r.patientName), escape(r.dob), escape(r.phone),
         escape(r.serial), escape(r.implant),
         escape(r.issueDescription), escape(r.conditions),
+        escape((r as any).problemFirstOccurred), escape((r as any).occurrenceFrequency), escape((r as any).specificConditions),
         arr(r.skin), arr(r.visual), arr(r.audio), arr(r.physical),
         arr(r.accessory), arr(r.connectivity), arr(r.steps),
         escape(r.resolved), escape(r.resolvedHow), escape(r.nextAction),
@@ -111,7 +112,7 @@ export default function Home() {
     } else {
       headers = [
         "#", "Patient Name", "DOB", "Phone", "Serial",
-        "Device Issue Description", "User Feedback",
+        "Device Issue Description", "First Occurred", "Frequency", "Specific Conditions",
         "Audio Quality Issues", "Physical Device Issues",
         "Connectivity Issues", "Other Issues",
         "Adhesive Adapter Steps", "Processor Steps",
@@ -121,7 +122,8 @@ export default function Home() {
       rows = records.map((r, i) => [
         i + 1,
         escape(r.patientName), escape(r.dob), escape(r.phone), escape(r.serial),
-        escape(r.issueDescription), escape(r.conditions),
+        escape(r.issueDescription),
+        escape((r as any).problemFirstOccurred), escape((r as any).occurrenceFrequency), escape((r as any).specificConditions),
         arr(r.audio), arr(r.physical), arr(r.connectivity), arr(r.accessory),
         arr(r.skin), arr(r.steps),
         escape(r.resolved), escape(r.resolvedHow), escape(r.nextAction),
@@ -306,6 +308,9 @@ function Samba2Table({
           <TableHead className="whitespace-nowrap">Contact Email</TableHead>
           <TableHead className="whitespace-nowrap max-w-[180px]">Issue Description</TableHead>
           <TableHead className="whitespace-nowrap max-w-[180px]">Conditions</TableHead>
+          <TableHead className="whitespace-nowrap">First Occurred</TableHead>
+          <TableHead className="whitespace-nowrap">Frequency</TableHead>
+          <TableHead className="whitespace-nowrap max-w-[180px]">Specific Conditions</TableHead>
           <TableHead className="whitespace-nowrap">Submitted By</TableHead>
           <TableHead className="text-right sticky right-0 bg-card border-l whitespace-nowrap">Actions</TableHead>
         </TableRow>
@@ -338,6 +343,9 @@ function Samba2Table({
               <TableCell className="whitespace-nowrap">{r.contactEmail}</TableCell>
               <TableCell className="truncate max-w-[180px]" title={r.issueDescription}>{r.issueDescription}</TableCell>
               <TableCell className="truncate max-w-[180px]" title={r.conditions}>{r.conditions}</TableCell>
+              <TableCell className="whitespace-nowrap">{(r as any).problemFirstOccurred || "—"}</TableCell>
+              <TableCell className="whitespace-nowrap">{(r as any).occurrenceFrequency || "—"}</TableCell>
+              <TableCell className="truncate max-w-[180px]" title={(r as any).specificConditions}>{(r as any).specificConditions || "—"}</TableCell>
               <TableCell className="text-right sticky right-0 bg-card border-l whitespace-nowrap">
                 <div className="flex justify-end gap-2 px-2">
                   <Button variant="ghost" size="sm" onClick={() => onPrint(r, i + 1)}>Report</Button>
@@ -388,6 +396,9 @@ function AdhearTable({
           <TableHead className="whitespace-nowrap">Contact Name</TableHead>
           <TableHead className="whitespace-nowrap">Contact Email</TableHead>
           <TableHead className="whitespace-nowrap max-w-[180px]">Issue Description</TableHead>
+          <TableHead className="whitespace-nowrap">First Occurred</TableHead>
+          <TableHead className="whitespace-nowrap">Frequency</TableHead>
+          <TableHead className="whitespace-nowrap max-w-[180px]">Specific Conditions</TableHead>
           <TableHead className="whitespace-nowrap">Submitted By</TableHead>
           <TableHead className="text-right sticky right-0 bg-card border-l whitespace-nowrap">Actions</TableHead>
         </TableRow>
@@ -417,6 +428,9 @@ function AdhearTable({
               <TableCell className="whitespace-nowrap">{r.contactName}</TableCell>
               <TableCell className="whitespace-nowrap">{r.contactEmail}</TableCell>
               <TableCell className="truncate max-w-[180px]" title={r.issueDescription}>{r.issueDescription}</TableCell>
+              <TableCell className="whitespace-nowrap">{(r as any).problemFirstOccurred || "—"}</TableCell>
+              <TableCell className="whitespace-nowrap">{(r as any).occurrenceFrequency || "—"}</TableCell>
+              <TableCell className="truncate max-w-[180px]" title={(r as any).specificConditions}>{(r as any).specificConditions || "—"}</TableCell>
               <TableCell className="text-right sticky right-0 bg-card border-l whitespace-nowrap">
                 <div className="flex justify-end gap-2 px-2">
                   <Button variant="ghost" size="sm" onClick={() => onPrint(r, i + 1)}>Report</Button>

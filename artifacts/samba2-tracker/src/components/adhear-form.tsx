@@ -67,6 +67,9 @@ const defaultAdhearValues: RecordFormValues = {
   implant: "ADHEAR",
   issueDescription: "",
   conditions: "",
+  problemFirstOccurred: "",
+  occurrenceFrequency: "",
+  specificConditions: "",
   skin: [],
   visual: [],
   audio: [],
@@ -108,6 +111,9 @@ export function AdhearForm({
         implant: "ADHEAR",
         issueDescription: editingRecord.issueDescription || "",
         conditions: editingRecord.conditions || "",
+        problemFirstOccurred: (editingRecord as any).problemFirstOccurred || "",
+        occurrenceFrequency: (editingRecord as any).occurrenceFrequency || "",
+        specificConditions: (editingRecord as any).specificConditions || "",
         skin: editingRecord.skin || [],
         visual: editingRecord.visual || [],
         audio: editingRecord.audio || [],
@@ -325,22 +331,55 @@ export function AdhearForm({
 
             <div className="space-y-4">
               <h3 className="text-lg font-medium border-b pb-2">User Feedback</h3>
-              <FormField
-                control={form.control}
-                name="conditions"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      When did the problem first occur? Constant or intermittent? Any specific
-                      conditions?
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea className="h-28" placeholder="e.g. Started 2 weeks ago, intermittent, happens mostly during outdoor use..." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <FormField
+                  control={form.control}
+                  name="problemFirstOccurred"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>When did the problem first occur?</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. 2 weeks ago" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="occurrenceFrequency"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Constant or Intermittent?</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select frequency" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Constant">Constant</SelectItem>
+                          <SelectItem value="Intermittent">Intermittent</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="specificConditions"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Any specific conditions when problem occurs?</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. outdoors, during calls" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
 
             <div className="space-y-4">
