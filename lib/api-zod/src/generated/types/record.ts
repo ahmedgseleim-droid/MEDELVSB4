@@ -5,8 +5,28 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-import type { RecordInput } from './recordInput';
 
-export type Record = RecordInput & {
-  id: number;
-};
+export interface RecordInput {
+  patientName?: string;
+  dob?: string;
+  phone?: string;
+  serial?: string;
+  implant?: string;
+  issueDescription?: string;
+  conditions?: string;
+  problemFirstOccurred?: string;
+  occurrenceFrequency?: string;
+  specificConditions?: string;
+  skin?: string[];
+  visual?: string[];
+  audio?: string[];
+  physical?: string[];
+  accessory?: string[];
+  connectivity?: string[];
+  steps?: string[];
+  resolved?: string;
+  resolvedHow?: string;
+  nextAction?: string;
+  contactName?: string;
+  contactEmail?: string;
+}
