@@ -1,4 +1,4 @@
-import { Record } from "@workspace/api-client-react/src/generated/api.schemas";
+import type { Record } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 

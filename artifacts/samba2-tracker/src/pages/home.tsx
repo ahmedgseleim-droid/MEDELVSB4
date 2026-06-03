@@ -6,7 +6,8 @@ import {
   getListRecordsQueryKey,
   getGetRecordStatsQueryKey,
 } from "@workspace/api-client-react";
-type Record = { id: number; patientName: string; dob: string; phone: string; serial: string; implant: string; issueDescription: string; conditions: string; skin: string[]; visual: string[]; audio: string[]; physical: string[]; accessory: string[]; connectivity: string[]; steps: string[]; resolved: string; resolvedHow: string; nextAction: string; contactName: string; contactEmail: string; submittedBy?: string; };
+import type { Record as ApiRecord } from "@workspace/api-client-react";
+type Record = ApiRecord & { submittedBy?: string };
 import { Download, LogOut } from "lucide-react";
 import { clearStoredToken } from "@/lib/auth";
 import {
@@ -34,6 +35,7 @@ import { TrackerForm } from "../components/tracker-form";
 import { AdhearForm } from "../components/adhear-form";
 import { StatsCards } from "../components/stats-cards";
 import { PatientReportModal } from "../components/patient-report-modal";
+import { ContactFooter } from "../components/contact-footer";
 
 type FormMode = "samba2" | "adhear";
 
@@ -266,6 +268,8 @@ export default function Home() {
           onClose={() => setPrintingRecord(null)}
         />
       )}
+
+      <ContactFooter />
     </div>
   );
 }

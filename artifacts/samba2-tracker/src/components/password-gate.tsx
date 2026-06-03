@@ -3,6 +3,7 @@ import { login, type UserRole } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ContactFooter } from "@/components/contact-footer";
 
 interface PasswordGateProps {
   onSuccess: (role: UserRole, username: string) => void;
@@ -28,8 +29,9 @@ export function PasswordGate({ onSuccess }: PasswordGateProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: "#F0F0F0" }}>
-      <div className="bg-white rounded-2xl shadow-xl p-10 w-full max-w-sm" style={{ border: "2px solid #C60C30" }}>
+    <div className="flex min-h-screen flex-col" style={{ background: "#F0F0F0" }}>
+      <div className="flex flex-1 items-center justify-center px-4 py-8">
+        <div className="bg-white rounded-2xl shadow-xl p-10 w-full max-w-sm" style={{ border: "2px solid #C60C30" }}>
 
         <div className="mb-8 text-center">
           <div className="flex items-center justify-center gap-2 mb-3">
@@ -76,7 +78,9 @@ export function PasswordGate({ onSuccess }: PasswordGateProps) {
             {loading ? "Signing in…" : "Sign In"}
           </Button>
         </form>
+        </div>
       </div>
+      <ContactFooter />
     </div>
   );
 }

@@ -8,7 +8,7 @@ import {
   getListRecordsQueryKey,
   getGetRecordStatsQueryKey,
 } from "@workspace/api-client-react";
-import { Record } from "@workspace/api-client-react/src/generated/api.schemas";
+import type { Record } from "@workspace/api-client-react";
 import { recordSchema, RecordFormValues } from "@/lib/schemas";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,7 +40,7 @@ const ADHEAR_CONNECTIVITY_OPTIONS = [
 ];
 
 const ADHEAR_OTHER_OPTIONS = [
-  "Skin irritation where device is worn",
+  "Skin irritation at wear site",
   "Device feels uncomfortable",
   "Other",
 ];
@@ -141,8 +141,8 @@ export function AdhearForm({
         form.reset(defaultAdhearValues);
         onSuccess();
       },
-      onError: () => {
-        toast({ title: "Failed to create record", variant: "destructive" });
+      onError: (error) => {
+        toast({ title: "Failed to create record", description: error instanceof Error ? error.message : "Please try again.", variant: "destructive" });
       },
     },
   });
@@ -156,8 +156,8 @@ export function AdhearForm({
         form.reset(defaultAdhearValues);
         onSuccess();
       },
-      onError: () => {
-        toast({ title: "Failed to update record", variant: "destructive" });
+      onError: (error) => {
+        toast({ title: "Failed to update record", description: error instanceof Error ? error.message : "Please try again.", variant: "destructive" });
       },
     },
   });
@@ -173,15 +173,7 @@ export function AdhearForm({
 
   const isPending = createRecord.isPending || updateRecord.isPending;
 
-  function CheckboxGroup({
-    name,
-    label,
-    options,
-  }: {
-    name: keyof RecordFormValues;
-    label: string;
-    options: string[];
-  }) {
+  function CheckboxGroup({ name, label, options }: { name: keyof RecordFormValues; label: string; options: string[] }) {
     return (
       <FormField
         control={form.control}
@@ -191,7 +183,7 @@ export function AdhearForm({
             <div className="mb-2">
               <FormLabel className="text-base">{label}</FormLabel>
             </div>
-            <div className="flex flex-wrap gap-x-6 gap-y-2">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
               {options.map((item) => (
                 <FormField
                   key={item}
@@ -200,17 +192,12 @@ export function AdhearForm({
                   render={({ field }) => {
                     const values = (field.value as string[]) || [];
                     return (
-                      <FormItem
-                        key={item}
-                        className="flex flex-row items-start space-x-3 space-y-0"
-                      >
+                      <FormItem key={item} className="flex flex-row items-center space-x-2 space-y-0">
                         <FormControl>
                           <Checkbox
                             checked={values.includes(item)}
                             onCheckedChange={(checked) =>
-                              checked
-                                ? field.onChange([...values, item])
-                                : field.onChange(values.filter((v) => v !== item))
+                              checked ? field.onChange([...values, item]) : field.onChange(values.filter((v) => v !== item))
                             }
                           />
                         </FormControl>
@@ -232,22 +219,9 @@ export function AdhearForm({
     <Card className="border-primary/20 shadow-md">
       <CardHeader className="bg-primary/5 border-b border-primary/10 flex flex-row items-center justify-between">
         <CardTitle className="text-xl text-primary flex items-center gap-2">
-          {editingRecord ? (
-            <>
-              Editing ADHEAR Record{" "}
-              <Badge variant="secondary" className="ml-2">
-                #{editingRecord.id}
-              </Badge>
-            </>
-          ) : (
-            "New ADHEAR Patient Record"
-          )}
+          {editingRecord ? (<>Editing ADHEAR Record{" "}<Badge variant="secondary" className="ml-2">#{editingRecord.id}</Badge></>) : ("New ADHEAR Patient Record")}
         </CardTitle>
-        {editingRecord && (
-          <Button variant="ghost" size="sm" onClick={onCancelEdit}>
-            Cancel Edit
-          </Button>
-        )}
+        {editingRecord && (<Button variant="ghost" size="sm" onClick={onCancelEdit}>Cancel Edit</Button>)}
       </CardHeader>
       <CardContent className="pt-6">
         <Form {...form}>
@@ -255,277 +229,107 @@ export function AdhearForm({
             <div className="space-y-4">
               <h3 className="text-lg font-medium border-b pb-2">Patient Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <FormField
-                  control={form.control}
-                  name="patientName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="dob"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Date of Birth</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Contact Phone</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="serial"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Device Serial Number</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormField control={form.control} name="patientName" render={({ field }) => (<FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="dob" render={({ field }) => (<FormItem><FormLabel>Date of Birth</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="phone" render={({ field }) => (<FormItem><FormLabel>Contact Phone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="serial" render={({ field }) => (<FormItem><FormLabel>Device Serial Number</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
               </div>
             </div>
 
             <div className="space-y-4">
               <h3 className="text-lg font-medium border-b pb-2">Device Issue Description</h3>
-              <FormField
-                control={form.control}
-                name="issueDescription"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Please describe the problem the user is experiencing with the ADHEAR device
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea className="h-24" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <FormField control={form.control} name="issueDescription" render={({ field }) => (
+                <FormItem><FormLabel>Please describe the problem the user is experiencing with the ADHEAR device</FormLabel><FormControl><Textarea className="h-24" {...field} /></FormControl><FormMessage /></FormItem>
+              )} />
             </div>
 
             <div className="space-y-4">
               <h3 className="text-lg font-medium border-b pb-2">User Feedback</h3>
+              <FormField control={form.control} name="conditions" render={({ field }) => (
+                <FormItem><FormLabel>User Feedback</FormLabel><FormControl><Textarea className="h-24" placeholder="User feedback..." {...field} /></FormControl><FormMessage /></FormItem>
+              )} />
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <FormField
-                  control={form.control}
-                  name="problemFirstOccurred"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>When did the problem first occur?</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. 2 weeks ago" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="occurrenceFrequency"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Constant or Intermittent?</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select frequency" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Constant">Constant</SelectItem>
-                          <SelectItem value="Intermittent">Intermittent</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="specificConditions"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Any specific conditions when problem occurs?</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. outdoors, during calls" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormField control={form.control} name="problemFirstOccurred" render={({ field }) => (
+                  <FormItem><FormLabel>When did the problem first occur?</FormLabel><FormControl><Input placeholder="e.g. 2 weeks ago" {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="occurrenceFrequency" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Constant or Intermittent?</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl><SelectTrigger><SelectValue placeholder="Select frequency" /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        <SelectItem value="Constant">Constant</SelectItem>
+                        <SelectItem value="Intermittent">Intermittent</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="specificConditions" render={({ field }) => (
+                  <FormItem><FormLabel>Any specific conditions when problem occurs?</FormLabel><FormControl><Input placeholder="e.g. outdoors, during calls" {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
               </div>
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-lg font-medium border-b pb-2">
-                Troubleshooting Checklist
-              </h3>
+              <h3 className="text-lg font-medium border-b pb-2">Troubleshooting Checklist</h3>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6">
-                <CheckboxGroup
-                  name="audio"
-                  label="Audio Quality Issues"
-                  options={ADHEAR_AUDIO_OPTIONS}
-                />
-                <CheckboxGroup
-                  name="physical"
-                  label="Physical Device Issues"
-                  options={ADHEAR_PHYSICAL_OPTIONS}
-                />
-                <CheckboxGroup
-                  name="connectivity"
-                  label="Connectivity Issues"
-                  options={ADHEAR_CONNECTIVITY_OPTIONS}
-                />
-                <CheckboxGroup
-                  name="accessory"
-                  label="Other Issues"
-                  options={ADHEAR_OTHER_OPTIONS}
-                />
+                <CheckboxGroup name="audio" label="Audio Quality Issues" options={ADHEAR_AUDIO_OPTIONS} />
+                <CheckboxGroup name="physical" label="Physical Device Issues" options={ADHEAR_PHYSICAL_OPTIONS} />
+                <CheckboxGroup name="connectivity" label="Connectivity Issues" options={ADHEAR_CONNECTIVITY_OPTIONS} />
+                <CheckboxGroup name="accessory" label="Other Issues" options={ADHEAR_OTHER_OPTIONS} />
               </div>
             </div>
 
             <div className="space-y-4">
               <h3 className="text-lg font-medium border-b pb-2">Troubleshooting Steps Attempted</h3>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6">
-                <CheckboxGroup
-                  name="skin"
-                  label="Adhesive Adapter"
-                  options={ADHEAR_STEPS_ADAPTER}
-                />
-                <CheckboxGroup
-                  name="steps"
-                  label="ADHEAR Audio Processor"
-                  options={ADHEAR_STEPS_PROCESSOR}
-                />
+                <CheckboxGroup name="skin" label="Adhesive Adapter" options={ADHEAR_STEPS_ADAPTER} />
+                <CheckboxGroup name="steps" label="ADHEAR Audio Processor" options={ADHEAR_STEPS_PROCESSOR} />
               </div>
             </div>
 
             <div className="space-y-4">
               <h3 className="text-lg font-medium border-b pb-2">Resolution & Contact</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <FormField
-                  control={form.control}
-                  name="resolved"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Was the issue resolved?</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select status" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Yes">Yes</SelectItem>
-                          <SelectItem value="No">No</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="contactName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Contact Name</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="contactEmail"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Contact Email Address</FormLabel>
-                      <FormControl>
-                        <Input type="email" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormField control={form.control} name="resolved" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Was the issue resolved?</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl><SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        <SelectItem value="Yes">Yes</SelectItem>
+                        <SelectItem value="No">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="contactName" render={({ field }) => (<FormItem><FormLabel>Contact Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="contactEmail" render={({ field }) => (<FormItem><FormLabel>Contact Email Address</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>)} />
               </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="resolvedHow"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>If YES — how was it resolved?</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select resolution method" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="With guidance">With guidance</SelectItem>
-                          <SelectItem value="Required service center repair">
-                            Required service center repair
-                          </SelectItem>
-                          <SelectItem value="Referred to Audiologist/Changed fitting parameters">
-                            Referred to Audiologist / Changed fitting parameters
-                          </SelectItem>
-                          <SelectItem value="Other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="nextAction"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>If NO — next course of action</FormLabel>
-                      <FormControl>
-                        <Textarea className="h-24" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormField control={form.control} name="resolvedHow" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>If YES — how was it resolved?</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl><SelectTrigger><SelectValue placeholder="Select resolution method" /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        <SelectItem value="With guidance">With guidance</SelectItem>
+                        <SelectItem value="Required service center repair">Required service center repair</SelectItem>
+                        <SelectItem value="Referred to Audiologist/Changed fitting parameters">Referred to Audiologist / Changed fitting parameters</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="nextAction" render={({ field }) => (<FormItem><FormLabel>If NO — next course of action</FormLabel><FormControl><Textarea className="h-24" {...field} /></FormControl><FormMessage /></FormItem>)} />
               </div>
             </div>
 
             <div className="flex justify-end pt-4 border-t">
-              <Button type="submit" disabled={isPending} className="px-8">
-                {isPending ? "Saving..." : "Save ADHEAR Record"}
-              </Button>
+              <Button type="submit" disabled={isPending} className="px-8">{isPending ? "Saving..." : "Save ADHEAR Record"}</Button>
             </div>
           </form>
         </Form>

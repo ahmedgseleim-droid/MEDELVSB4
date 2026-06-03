@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { TrackerForm } from "@/components/tracker-form";
 import { AdhearForm } from "@/components/adhear-form";
 import { PatientReportModal } from "@/components/patient-report-modal";
+import { ContactFooter } from "@/components/contact-footer";
 import { clearStoredToken } from "@/lib/auth";
 
 type Record = { id: number; patientName: string; dob: string; phone: string; serial: string; implant: string; issueDescription: string; conditions: string; problemFirstOccurred?: string; occurrenceFrequency?: string; specificConditions?: string; skin: string[]; visual: string[]; audio: string[]; physical: string[]; accessory: string[]; connectivity: string[]; steps: string[]; resolved: string; resolvedHow: string; nextAction: string; contactName: string; contactEmail: string; submittedBy?: string; };
@@ -197,7 +198,6 @@ export default function StaffView({ username }: StaffViewProps) {
           </div>
         </div>
       </div>
-
       {printingRecord && (
         <PatientReportModal
           record={printingRecord.record}
@@ -205,6 +205,8 @@ export default function StaffView({ username }: StaffViewProps) {
           onClose={() => setPrintingRecord(null)}
         />
       )}
+
+      <ContactFooter />
     </div>
   );
 }

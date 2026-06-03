@@ -126,7 +126,7 @@ export function TrackerForm({
             <div className="mb-2">
               <FormLabel className="text-base">{label}</FormLabel>
             </div>
-            <div className="flex flex-wrap gap-x-6 gap-y-2">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
               {options.map((item) => (
                 <FormField
                   key={item}

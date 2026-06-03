@@ -1,5 +1,5 @@
 import { useRef } from "react";
-type Record = { id: number; patientName: string; dob: string; phone: string; serial: string; implant: string; issueDescription: string; conditions: string; skin: string[]; visual: string[]; audio: string[]; physical: string[]; accessory: string[]; connectivity: string[]; steps: string[]; resolved: string; resolvedHow: string; nextAction: string; contactName: string; contactEmail: string; };
+import type { Record } from "@workspace/api-client-react";
 import {
   Dialog,
   DialogContent,
@@ -89,7 +89,7 @@ function buildPrintHtml(record: Record, rowNumber: number, isAdhear: boolean): s
       ${content}
     </div>`;
 
-  const infoRow = (label: string, value: string) => `
+  const infoRow = (label: string, value?: string | null) => `
     <div style="display:flex;gap:4px;margin-bottom:3px;font-size:11px;">
       <span style="font-weight:600;color:#555;min-width:130px;flex-shrink:0;">${label}:</span>
       <span style="color:#111;">${value || "—"}</span>
