@@ -1,5 +1,9 @@
 import { useRef } from "react";
-import type { Record } from "@workspace/api-client-react";
+import type { Record as ApiRecord } from "@workspace/api-client-react";
+
+// ✅ استبدلنا الـ local type بالـ API type عشان يتوافق مع home.tsx
+type Record = ApiRecord & { submittedBy?: string };
+
 import {
   Dialog,
   DialogContent,
@@ -60,8 +64,8 @@ const SAMBA2_VISUAL = ["Housing intact", "Cover damage", "Corrosion", "Moisture 
 const SAMBA2_AUDIO = ["No sound/output", "Weak Sound", "Sound too Loud", "Distorted/Muffled Sound", "Intermittent Sound Cutting", "Feedback/Whistling"];
 const SAMBA2_PHYSICAL = ["Processor Won't power on", "Battery draining too quickly", "Battery Compartment Issues", "Cover damage", "Processor falls off frequently", "Skin irritation at implant site"];
 const SAMBA2_ACCESSORY = ["Attachment Clip malfunction", "WaterWear Problems", "Program switching failure", "Volume control Unresponsive"];
-const SAMBA2_CONNECTIVITY = ["SAMBA 2 GO pairing failure", "Streaming audio problems", "SAMBA 2 remote app malfunction"];
-const SAMBA2_STEPS = ["Replaced battery", "Cleaned device components", "Battery contacts cleaned", "Magnet strength verified", "SAMBA 2 GO re-paired", "Remote App reinstalled"];
+const SAMBA2_CONNECTIVITY = ["SAMBA 2 GO pairing failure", "Streaming audio problems", "SAMBA 2 remote app malfunction", "Other"];
+const SAMBA2_STEPS = ["Replaced battery", "Cleaned device components", "Battery contacts cleaned", "Magnet strength verified", "SAMBA 2 GO re-paired", "Remote App reinstalled", "Other"];
 
 const ADHEAR_AUDIO = ["No sound from device", "Distorted or unclear sound", "Intermittent sound cutting out", "Volume too low even at maximum setting", "Feedback/whistling sounds"];
 const ADHEAR_PHYSICAL = ["Device won't turn on", "Battery draining too quickly", "Visible damage to device", "Adhesive not sticking properly"];
@@ -70,12 +74,33 @@ const ADHEAR_OTHER = ["Skin irritation where device is worn", "Device feels unco
 const ADHEAR_ADAPTER = ["Changed location of Adhesive Adapter", "Cleaning/Checking site of placement for obstructions", "Replaced Adhesive Adapter"];
 const ADHEAR_PROCESSOR = ["Replaced battery", "Cleaned device components", "Restarted the device", "Checking coupling plate (Fixed or Loose)", "Other"];
 
+function isChecked(arr: string[] | null | undefined, item: string): boolean {
+  const values = arr ?? [];
+  if (item === "Other") {
+    return values.some((v) => v === "Other" || v.startsWith("Other: "));
+  }
+  return values.includes(item);
+}
+
+function renderCheckItems(options: string[], values: string[] | null | undefined) {
+  const arr = values ?? [];
+  return options.map((item) => {
+    if (item === "Other") {
+      const customEntry = arr.find((v) => v === "Other" || v.startsWith("Other: "));
+      const checked = !!customEntry;
+      const displayLabel =
+        customEntry && customEntry.startsWith("Other: ") ? customEntry : "Other";
+      return <CheckItem key={item} label={displayLabel} checked={checked} />;
+    }
+    return <CheckItem key={item} label={item} checked={isChecked(arr, item)} />;
+  });
+}
+
 function buildPrintHtml(record: Record, rowNumber: number, isAdhear: boolean): string {
-  const has = (arr: string[] | null | undefined, val: string) => (arr ?? []).includes(val);
   const date = new Date().toLocaleDateString("en-GB");
   const deviceLabel = isAdhear ? "ADHEAR" : "SAMBA 2";
 
-  const checkItem = (label: string, checked: boolean) => `
+  const checkItemHtml = (label: string, checked: boolean) => `
     <div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:4px;">
       <div style="width:12px;height:12px;border:1.5px solid ${checked ? "#7f1212" : "#ccc"};border-radius:2px;flex-shrink:0;margin-top:1px;background:${checked ? "#7f1212" : "white"};display:flex;align-items:center;justify-content:center;">
         ${checked ? '<span style="color:white;font-size:9px;line-height:1;font-weight:700;">✓</span>' : ""}
@@ -89,28 +114,47 @@ function buildPrintHtml(record: Record, rowNumber: number, isAdhear: boolean): s
       ${content}
     </div>`;
 
-  const infoRow = (label: string, value?: string | null) => `
+  const infoRow = (label: string, value: string | undefined | null) => `
     <div style="display:flex;gap:4px;margin-bottom:3px;font-size:11px;">
       <span style="font-weight:600;color:#555;min-width:130px;flex-shrink:0;">${label}:</span>
-      <span style="color:#111;">${value || "—"}</span>
+      <span style="color:#111;">${value ?? "—"}</span>
     </div>`;
+
+  const renderGroupHtml = (options: string[], arr: string[] | null | undefined): string => {
+    const values = arr ?? [];
+    return options
+      .map((item) => {
+        if (item === "Other") {
+          const customEntry = values.find((v) => v === "Other" || v.startsWith("Other: "));
+          const checked = !!customEntry;
+          const displayLabel =
+            customEntry && customEntry.startsWith("Other: ") ? customEntry : "Other";
+          return checkItemHtml(displayLabel, checked);
+        }
+        const checked = values.includes(item);
+        return checkItemHtml(item, checked);
+      })
+      .join("");
+  };
 
   const checkGroup = (title: string, items: string[], arr: string[] | null | undefined) => `
     <div>
       <div style="font-size:10px;font-weight:600;color:#555;margin-bottom:6px;">${title}</div>
-      ${items.map(o => checkItem(o, has(arr, o))).join("")}
+      ${renderGroupHtml(items, arr)}
     </div>`;
 
-  const resolvedColor = record.resolved === "Yes" ? "#166534" : record.resolved === "No" ? "#991b1b" : "#555";
-  const resolvedBg = record.resolved === "Yes" ? "#dcfce7" : record.resolved === "No" ? "#fee2e2" : "#f3f4f6";
+  const resolvedColor =
+    record.resolved === "Yes" ? "#166534" : record.resolved === "No" ? "#991b1b" : "#555";
+  const resolvedBg =
+    record.resolved === "Yes" ? "#dcfce7" : record.resolved === "No" ? "#fee2e2" : "#f3f4f6";
 
   const samba2Checklist = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 24px;">
-      ${checkGroup("Skin Issues", SAMBA2_SKIN, record.skin)}
+      ${checkGroup("Skin Condition at Site", SAMBA2_SKIN, record.skin)}
       ${checkGroup("Visual Inspection", SAMBA2_VISUAL, record.visual)}
-      ${checkGroup("Audio Issues", SAMBA2_AUDIO, record.audio)}
-      ${checkGroup("Physical Issues", SAMBA2_PHYSICAL, record.physical)}
-      ${checkGroup("Accessory Issues", SAMBA2_ACCESSORY, record.accessory)}
+      ${checkGroup("Audio Quality Issues", SAMBA2_AUDIO, record.audio)}
+      ${checkGroup("Physical Device Issues", SAMBA2_PHYSICAL, record.physical)}
+      ${checkGroup("Accessory/Usage Issues", SAMBA2_ACCESSORY, record.accessory)}
       ${checkGroup("Connectivity Issues", SAMBA2_CONNECTIVITY, record.connectivity)}
     </div>`;
 
@@ -125,19 +169,22 @@ function buildPrintHtml(record: Record, rowNumber: number, isAdhear: boolean): s
   const adhearSteps = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 24px;">
       ${checkGroup("Adhesive Adapter", ADHEAR_ADAPTER, record.skin)}
-      ${checkGroup("ADHEAR Audio Processor", ADHEAR_PROCESSOR, record.steps)}
+      <div>
+        <div style="font-size:10px;font-weight:600;color:#555;margin-bottom:6px;">ADHEAR Audio Processor</div>
+        ${renderGroupHtml(ADHEAR_PROCESSOR, record.steps)}
+      </div>
     </div>`;
 
   const samba2Steps = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 24px;">
-      ${SAMBA2_STEPS.map(o => checkItem(o, has(record.steps, o))).join("")}
+      ${renderGroupHtml(SAMBA2_STEPS, record.steps)}
     </div>`;
 
   return `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Patient Report — ${record.patientName}</title>
+  <title>Patient Report — ${record.patientName ?? ""}</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 11px; color: #111; background: white; padding: 28px 36px; }
@@ -146,7 +193,6 @@ function buildPrintHtml(record: Record, rowNumber: number, isAdhear: boolean): s
 </head>
 <body>
 
-  <!-- Header -->
   <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #7f1212;padding-bottom:12px;margin-bottom:16px;">
     <div>
       <div style="font-size:17px;font-weight:700;color:#7f1212;">MEDEL — ${deviceLabel} Troubleshooting Report</div>
@@ -170,7 +216,7 @@ function buildPrintHtml(record: Record, rowNumber: number, isAdhear: boolean): s
 
   ${section("Issue Description", `
     <div style="background:#f9f9f9;border:1px solid #e8e8e8;border-radius:4px;padding:8px 10px;min-height:40px;font-size:11px;color:#333;white-space:pre-wrap;">
-      ${record.issueDescription || "—"}
+      ${record.issueDescription ?? "—"}
     </div>
   `)}
 
@@ -184,14 +230,14 @@ function buildPrintHtml(record: Record, rowNumber: number, isAdhear: boolean): s
 
   ${isAdhear
     ? section("Troubleshooting Steps Attempted", adhearSteps)
-    : section("Steps Taken", samba2Steps)}
+    : section("Troubleshooting Steps Attempted", samba2Steps)}
 
   ${section("Resolution", `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
       <div>
         <div style="font-size:10px;font-weight:600;color:#555;margin-bottom:5px;">Status</div>
         <span style="display:inline-block;padding:2px 12px;border-radius:10px;font-size:10px;font-weight:700;background:${resolvedBg};color:${resolvedColor};">
-          ${record.resolved || "Not set"}
+          ${record.resolved ?? "Not set"}
         </span>
       </div>
       ${record.resolved === "Yes" && record.resolvedHow ? `
@@ -214,7 +260,6 @@ function buildPrintHtml(record: Record, rowNumber: number, isAdhear: boolean): s
     </div>
   `) : ""}
 
-  <!-- Footer -->
   <div style="margin-top:20px;padding-top:8px;border-top:1px solid #e5e7eb;display:flex;justify-content:space-between;font-size:9px;color:#999;">
     <span>MEDEL — ${deviceLabel} Troubleshooting Report</span>
     <span>Record #${rowNumber} &nbsp;·&nbsp; ${date}</span>
@@ -231,7 +276,6 @@ export function PatientReportModal({ record, rowNumber, onClose }: PatientReport
   if (!record) return null;
 
   const isAdhear = record.implant === "ADHEAR";
-  const has = (arr: string[] | null | undefined, val: string) => (arr ?? []).includes(val);
 
   const handlePrint = () => {
     const win = window.open("", "_blank", "width=900,height=1100");
@@ -252,7 +296,7 @@ export function PatientReportModal({ record, rowNumber, onClose }: PatientReport
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="flex flex-row items-center justify-between pr-8">
           <DialogTitle className="text-primary">
-            Patient Report — {record.patientName}
+            Patient Report — {record.patientName ?? "—"}
           </DialogTitle>
           <Button onClick={handlePrint} size="sm" className="gap-2">
             <Printer className="h-4 w-4" />
@@ -261,9 +305,12 @@ export function PatientReportModal({ record, rowNumber, onClose }: PatientReport
         </DialogHeader>
 
         <div ref={printRef} id="print-content" className="space-y-0">
-          <div className="header flex justify-between items-start border-b-2 border-primary pb-3 mb-5">
+
+          <div className="flex justify-between items-start border-b-2 border-primary pb-3 mb-5">
             <div>
-              <div className="text-lg font-bold text-primary">MEDEL — {isAdhear ? "ADHEAR" : "SAMBA 2"} Troubleshooting Report</div>
+              <div className="text-lg font-bold text-primary">
+                MEDEL — {isAdhear ? "ADHEAR" : "SAMBA 2"} Troubleshooting Report
+              </div>
               <div className="text-xs text-muted-foreground mt-0.5">Patient Case Record</div>
             </div>
             <div className="text-right text-xs text-muted-foreground">
@@ -284,7 +331,7 @@ export function PatientReportModal({ record, rowNumber, onClose }: PatientReport
 
           <Section title="Issue Description">
             <div className="bg-muted/40 rounded border p-3 text-sm whitespace-pre-wrap min-h-[48px]">
-              {record.issueDescription || "—"}
+              {record.issueDescription ?? "—"}
             </div>
           </Section>
 
@@ -302,27 +349,19 @@ export function PatientReportModal({ record, rowNumber, onClose }: PatientReport
                 <div className="grid grid-cols-2 gap-x-8 gap-y-4">
                   <div>
                     <p className="text-xs font-semibold text-muted-foreground mb-2">Audio Quality Issues</p>
-                    <div className="space-y-1.5">
-                      {ADHEAR_AUDIO.map((o) => <CheckItem key={o} label={o} checked={has(record.audio, o)} />)}
-                    </div>
+                    <div className="space-y-1.5">{renderCheckItems(ADHEAR_AUDIO, record.audio)}</div>
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-muted-foreground mb-2">Physical Device Issues</p>
-                    <div className="space-y-1.5">
-                      {ADHEAR_PHYSICAL.map((o) => <CheckItem key={o} label={o} checked={has(record.physical, o)} />)}
-                    </div>
+                    <div className="space-y-1.5">{renderCheckItems(ADHEAR_PHYSICAL, record.physical)}</div>
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-muted-foreground mb-2">Connectivity Issues</p>
-                    <div className="space-y-1.5">
-                      {ADHEAR_CONNECTIVITY.map((o) => <CheckItem key={o} label={o} checked={has(record.connectivity, o)} />)}
-                    </div>
+                    <div className="space-y-1.5">{renderCheckItems(ADHEAR_CONNECTIVITY, record.connectivity)}</div>
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-muted-foreground mb-2">Other Issues</p>
-                    <div className="space-y-1.5">
-                      {ADHEAR_OTHER.map((o) => <CheckItem key={o} label={o} checked={has(record.accessory, o)} />)}
-                    </div>
+                    <div className="space-y-1.5">{renderCheckItems(ADHEAR_OTHER, record.accessory)}</div>
                   </div>
                 </div>
               </Section>
@@ -331,15 +370,11 @@ export function PatientReportModal({ record, rowNumber, onClose }: PatientReport
                 <div className="grid grid-cols-2 gap-x-8 gap-y-4">
                   <div>
                     <p className="text-xs font-semibold text-muted-foreground mb-2">Adhesive Adapter</p>
-                    <div className="space-y-1.5">
-                      {ADHEAR_ADAPTER.map((o) => <CheckItem key={o} label={o} checked={has(record.skin, o)} />)}
-                    </div>
+                    <div className="space-y-1.5">{renderCheckItems(ADHEAR_ADAPTER, record.skin)}</div>
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-muted-foreground mb-2">ADHEAR Audio Processor</p>
-                    <div className="space-y-1.5">
-                      {ADHEAR_PROCESSOR.map((o) => <CheckItem key={o} label={o} checked={has(record.steps, o)} />)}
-                    </div>
+                    <div className="space-y-1.5">{renderCheckItems(ADHEAR_PROCESSOR, record.steps)}</div>
                   </div>
                 </div>
               </Section>
@@ -349,47 +384,35 @@ export function PatientReportModal({ record, rowNumber, onClose }: PatientReport
               <Section title="Troubleshooting Checklist">
                 <div className="grid grid-cols-2 gap-x-8 gap-y-4">
                   <div>
-                    <p className="text-xs font-semibold text-muted-foreground mb-2">Skin Issues</p>
-                    <div className="space-y-1.5">
-                      {SAMBA2_SKIN.map((o) => <CheckItem key={o} label={o} checked={has(record.skin, o)} />)}
-                    </div>
+                    <p className="text-xs font-semibold text-muted-foreground mb-2">Skin Condition at Site</p>
+                    <div className="space-y-1.5">{renderCheckItems(SAMBA2_SKIN, record.skin)}</div>
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-muted-foreground mb-2">Visual Inspection</p>
-                    <div className="space-y-1.5">
-                      {SAMBA2_VISUAL.map((o) => <CheckItem key={o} label={o} checked={has(record.visual, o)} />)}
-                    </div>
+                    <div className="space-y-1.5">{renderCheckItems(SAMBA2_VISUAL, record.visual)}</div>
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-muted-foreground mb-2">Audio Issues</p>
-                    <div className="space-y-1.5">
-                      {SAMBA2_AUDIO.map((o) => <CheckItem key={o} label={o} checked={has(record.audio, o)} />)}
-                    </div>
+                    <p className="text-xs font-semibold text-muted-foreground mb-2">Audio Quality Issues</p>
+                    <div className="space-y-1.5">{renderCheckItems(SAMBA2_AUDIO, record.audio)}</div>
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-muted-foreground mb-2">Physical Issues</p>
-                    <div className="space-y-1.5">
-                      {SAMBA2_PHYSICAL.map((o) => <CheckItem key={o} label={o} checked={has(record.physical, o)} />)}
-                    </div>
+                    <p className="text-xs font-semibold text-muted-foreground mb-2">Physical Device Issues</p>
+                    <div className="space-y-1.5">{renderCheckItems(SAMBA2_PHYSICAL, record.physical)}</div>
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-muted-foreground mb-2">Accessory Issues</p>
-                    <div className="space-y-1.5">
-                      {SAMBA2_ACCESSORY.map((o) => <CheckItem key={o} label={o} checked={has(record.accessory, o)} />)}
-                    </div>
+                    <p className="text-xs font-semibold text-muted-foreground mb-2">Accessory/Usage Issues</p>
+                    <div className="space-y-1.5">{renderCheckItems(SAMBA2_ACCESSORY, record.accessory)}</div>
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-muted-foreground mb-2">Connectivity Issues</p>
-                    <div className="space-y-1.5">
-                      {SAMBA2_CONNECTIVITY.map((o) => <CheckItem key={o} label={o} checked={has(record.connectivity, o)} />)}
-                    </div>
+                    <div className="space-y-1.5">{renderCheckItems(SAMBA2_CONNECTIVITY, record.connectivity)}</div>
                   </div>
                 </div>
               </Section>
 
-              <Section title="Steps Taken">
+              <Section title="Troubleshooting Steps Attempted">
                 <div className="grid grid-cols-2 gap-x-8 gap-y-1.5">
-                  {SAMBA2_STEPS.map((o) => <CheckItem key={o} label={o} checked={has(record.steps, o)} />)}
+                  {renderCheckItems(SAMBA2_STEPS, record.steps)}
                 </div>
               </Section>
             </>
@@ -400,7 +423,7 @@ export function PatientReportModal({ record, rowNumber, onClose }: PatientReport
               <div>
                 <p className="text-xs font-semibold text-muted-foreground mb-1">Status</p>
                 <span className={`inline-block px-3 py-0.5 rounded-full text-xs font-semibold ${resolvedClass}`}>
-                  {record.resolved || "Not set"}
+                  {record.resolved ?? "Not set"}
                 </span>
               </div>
               {record.resolved === "Yes" && record.resolvedHow && (

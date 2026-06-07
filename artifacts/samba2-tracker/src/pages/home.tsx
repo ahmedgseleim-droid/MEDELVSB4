@@ -8,7 +8,7 @@ import {
 } from "@workspace/api-client-react";
 import type { Record as ApiRecord } from "@workspace/api-client-react";
 type Record = ApiRecord & { submittedBy?: string };
-import { Download, LogOut } from "lucide-react";
+import { Download } from "lucide-react";
 import { clearStoredToken } from "@/lib/auth";
 import {
   Table,
@@ -85,8 +85,10 @@ export default function Home() {
   const exportToCSV = useCallback(() => {
     if (!records || records.length === 0) return;
 
-    const escape = (val: string | undefined | null) => `"${(val ?? "").replace(/"/g, '""')}"`;
-    const arr = (vals: string[] | undefined | null) => escape((vals ?? []).join("; "));
+    const escape = (val: string | undefined | null) =>
+      `"${(val ?? "").replace(/"/g, '""')}"`;
+    const arr = (vals: string[] | undefined | null) =>
+      escape((vals ?? []).join("; "));
 
     let headers: string[];
     let rows: string[];
@@ -105,7 +107,9 @@ export default function Home() {
         escape(r.patientName), escape(r.dob), escape(r.phone),
         escape(r.serial), escape(r.implant),
         escape(r.issueDescription), escape(r.conditions),
-        escape((r as any).problemFirstOccurred), escape((r as any).occurrenceFrequency), escape((r as any).specificConditions),
+        escape((r as any).problemFirstOccurred),
+        escape((r as any).occurrenceFrequency),
+        escape((r as any).specificConditions),
         arr(r.skin), arr(r.visual), arr(r.audio), arr(r.physical),
         arr(r.accessory), arr(r.connectivity), arr(r.steps),
         escape(r.resolved), escape(r.resolvedHow), escape(r.nextAction),
@@ -125,7 +129,9 @@ export default function Home() {
         i + 1,
         escape(r.patientName), escape(r.dob), escape(r.phone), escape(r.serial),
         escape(r.issueDescription),
-        escape((r as any).problemFirstOccurred), escape((r as any).occurrenceFrequency), escape((r as any).specificConditions),
+        escape((r as any).problemFirstOccurred),
+        escape((r as any).occurrenceFrequency),
+        escape((r as any).specificConditions),
         arr(r.audio), arr(r.physical), arr(r.connectivity), arr(r.accessory),
         arr(r.skin), arr(r.steps),
         escape(r.resolved), escape(r.resolvedHow), escape(r.nextAction),
@@ -151,12 +157,15 @@ export default function Home() {
         </h1>
         <p className="text-muted-foreground mt-2">Patient Case Troubleshooting Log</p>
       </div>
-      <button onClick={() => { clearStoredToken(); window.location.reload(); }} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+
+      <button
+        onClick={() => { clearStoredToken(); window.location.reload(); }}
+        className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
+      >
         <span>Sign out</span>
       </button>
-      <div className="hidden">
-      </div>
 
+      {/* Tab switcher */}
       <div className="mb-6 flex gap-2 border-b">
         <button
           onClick={() => handleModeSwitch("samba2")}
@@ -180,6 +189,7 @@ export default function Home() {
         </button>
       </div>
 
+      {/* Form */}
       <div className="mb-8">
         {formMode === "samba2" ? (
           <TrackerForm
@@ -198,6 +208,7 @@ export default function Home() {
 
       <StatsCards records={records} isLoading={isLoading} mode={formMode} />
 
+      {/* Records table */}
       <div className="bg-card rounded-lg border shadow-sm">
         <div className="p-4 border-b flex items-center justify-between">
           <h2 className="text-lg font-semibold">
@@ -237,6 +248,7 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Delete confirmation */}
       <AlertDialog
         open={deletingId !== null}
         onOpenChange={(open) => !open && setDeletingId(null)}
@@ -261,6 +273,7 @@ export default function Home() {
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* Print modal */}
       {printingRecord && (
         <PatientReportModal
           record={printingRecord.record}
@@ -273,6 +286,8 @@ export default function Home() {
     </div>
   );
 }
+
+// ─── SAMBA 2 Table ────────────────────────────────────────────────────────────
 
 function Samba2Table({
   records,
@@ -287,7 +302,7 @@ function Samba2Table({
   onDelete: (id: number) => void;
   onPrint: (r: Record, rowNumber: number) => void;
 }) {
-  const COLS = 20;
+  const COLS = 25;
   return (
     <Table>
       <TableHeader>
@@ -316,45 +331,95 @@ function Samba2Table({
           <TableHead className="whitespace-nowrap">Frequency</TableHead>
           <TableHead className="whitespace-nowrap max-w-[180px]">Specific Conditions</TableHead>
           <TableHead className="whitespace-nowrap">Submitted By</TableHead>
-          <TableHead className="text-right sticky right-0 bg-card border-l whitespace-nowrap">Actions</TableHead>
+          <TableHead className="text-right sticky right-0 bg-card border-l whitespace-nowrap">
+            Actions
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {isLoading ? (
-          <TableRow><TableCell colSpan={COLS} className="h-24 text-center"><Skeleton className="w-full h-8" /></TableCell></TableRow>
+          <TableRow>
+            <TableCell colSpan={COLS} className="h-24 text-center">
+              <Skeleton className="w-full h-8" />
+            </TableCell>
+          </TableRow>
         ) : !records?.length ? (
-          <TableRow><TableCell colSpan={COLS} className="h-24 text-center text-muted-foreground">No SAMBA 2 records found</TableCell></TableRow>
+          <TableRow>
+            <TableCell colSpan={COLS} className="h-24 text-center text-muted-foreground">
+              No SAMBA 2 records found
+            </TableCell>
+          </TableRow>
         ) : (
           records.map((r, i) => (
             <TableRow key={r.id}>
               <TableCell className="font-medium whitespace-nowrap">{i + 1}</TableCell>
-              <TableCell className="whitespace-nowrap">{r.patientName}</TableCell>
-              <TableCell className="whitespace-nowrap">{r.dob}</TableCell>
-              <TableCell className="whitespace-nowrap">{r.phone}</TableCell>
-              <TableCell className="whitespace-nowrap">{r.serial}</TableCell>
-              <TableCell className="whitespace-nowrap">{r.implant}</TableCell>
-              <TableCell className="truncate max-w-[180px]" title={r.skin?.join(", ")}>{r.skin?.join(", ")}</TableCell>
-              <TableCell className="truncate max-w-[180px]" title={r.visual?.join(", ")}>{r.visual?.join(", ")}</TableCell>
-              <TableCell className="truncate max-w-[180px]" title={r.audio?.join(", ")}>{r.audio?.join(", ")}</TableCell>
-              <TableCell className="truncate max-w-[180px]" title={r.physical?.join(", ")}>{r.physical?.join(", ")}</TableCell>
-              <TableCell className="truncate max-w-[180px]" title={r.accessory?.join(", ")}>{r.accessory?.join(", ")}</TableCell>
-              <TableCell className="truncate max-w-[180px]" title={r.connectivity?.join(", ")}>{r.connectivity?.join(", ")}</TableCell>
-              <TableCell className="truncate max-w-[180px]" title={r.steps?.join(", ")}>{r.steps?.join(", ")}</TableCell>
-              <TableCell className="whitespace-nowrap">{r.resolved || "-"}</TableCell>
-              <TableCell className="truncate max-w-[180px]" title={r.resolvedHow}>{r.resolvedHow}</TableCell>
-              <TableCell className="truncate max-w-[180px]" title={r.nextAction}>{r.nextAction}</TableCell>
-              <TableCell className="whitespace-nowrap">{r.contactName}</TableCell>
-              <TableCell className="whitespace-nowrap">{r.contactEmail}</TableCell>
-              <TableCell className="truncate max-w-[180px]" title={r.issueDescription}>{r.issueDescription}</TableCell>
-              <TableCell className="truncate max-w-[180px]" title={r.conditions}>{r.conditions}</TableCell>
-              <TableCell className="whitespace-nowrap">{(r as any).problemFirstOccurred || "—"}</TableCell>
-              <TableCell className="whitespace-nowrap">{(r as any).occurrenceFrequency || "—"}</TableCell>
-              <TableCell className="truncate max-w-[180px]" title={(r as any).specificConditions}>{(r as any).specificConditions || "—"}</TableCell>
+              <TableCell className="whitespace-nowrap">{r.patientName ?? "—"}</TableCell>
+              <TableCell className="whitespace-nowrap">{r.dob ?? "—"}</TableCell>
+              <TableCell className="whitespace-nowrap">{r.phone ?? "—"}</TableCell>
+              <TableCell className="whitespace-nowrap">{r.serial ?? "—"}</TableCell>
+              <TableCell className="whitespace-nowrap">{r.implant ?? "—"}</TableCell>
+              <TableCell className="truncate max-w-[180px]" title={r.skin?.join(", ")}>
+                {r.skin?.join(", ")}
+              </TableCell>
+              <TableCell className="truncate max-w-[180px]" title={r.visual?.join(", ")}>
+                {r.visual?.join(", ")}
+              </TableCell>
+              <TableCell className="truncate max-w-[180px]" title={r.audio?.join(", ")}>
+                {r.audio?.join(", ")}
+              </TableCell>
+              <TableCell className="truncate max-w-[180px]" title={r.physical?.join(", ")}>
+                {r.physical?.join(", ")}
+              </TableCell>
+              <TableCell className="truncate max-w-[180px]" title={r.accessory?.join(", ")}>
+                {r.accessory?.join(", ")}
+              </TableCell>
+              <TableCell className="truncate max-w-[180px]" title={r.connectivity?.join(", ")}>
+                {r.connectivity?.join(", ")}
+              </TableCell>
+              <TableCell className="truncate max-w-[180px]" title={r.steps?.join(", ")}>
+                {r.steps?.join(", ")}
+              </TableCell>
+              <TableCell className="whitespace-nowrap">{r.resolved ?? "—"}</TableCell>
+              <TableCell className="truncate max-w-[180px]" title={r.resolvedHow ?? ""}>
+                {r.resolvedHow ?? "—"}
+              </TableCell>
+              <TableCell className="truncate max-w-[180px]" title={r.nextAction ?? ""}>
+                {r.nextAction ?? "—"}
+              </TableCell>
+              <TableCell className="whitespace-nowrap">{r.contactName ?? "—"}</TableCell>
+              <TableCell className="whitespace-nowrap">{r.contactEmail ?? "—"}</TableCell>
+              <TableCell className="truncate max-w-[180px]" title={r.issueDescription ?? ""}>
+                {r.issueDescription ?? "—"}
+              </TableCell>
+              <TableCell className="truncate max-w-[180px]" title={r.conditions ?? ""}>
+                {r.conditions ?? "—"}
+              </TableCell>
+              <TableCell className="whitespace-nowrap">
+                {(r as any).problemFirstOccurred ?? "—"}
+              </TableCell>
+              <TableCell className="whitespace-nowrap">
+                {(r as any).occurrenceFrequency ?? "—"}
+              </TableCell>
+              <TableCell
+                className="truncate max-w-[180px]"
+                title={(r as any).specificConditions ?? ""}
+              >
+                {(r as any).specificConditions ?? "—"}
+              </TableCell>
+              <TableCell className="whitespace-nowrap">
+                {(r as any).submittedBy ?? "—"}
+              </TableCell>
               <TableCell className="text-right sticky right-0 bg-card border-l whitespace-nowrap">
                 <div className="flex justify-end gap-2 px-2">
-                  <Button variant="ghost" size="sm" onClick={() => onPrint(r, i + 1)}>Report</Button>
-                  <Button variant="outline" size="sm" onClick={() => onEdit(r)}>Edit</Button>
-                  <Button variant="destructive" size="sm" onClick={() => onDelete(r.id)}>Delete</Button>
+                  <Button variant="ghost" size="sm" onClick={() => onPrint(r, i + 1)}>
+                    Report
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => onEdit(r)}>
+                    Edit
+                  </Button>
+                  <Button variant="destructive" size="sm" onClick={() => onDelete(r.id)}>
+                    Delete
+                  </Button>
                 </div>
               </TableCell>
             </TableRow>
@@ -364,6 +429,8 @@ function Samba2Table({
     </Table>
   );
 }
+
+// ─── ADHEAR Table ─────────────────────────────────────────────────────────────
 
 function AdhearTable({
   records,
@@ -378,7 +445,7 @@ function AdhearTable({
   onDelete: (id: number) => void;
   onPrint: (r: Record, rowNumber: number) => void;
 }) {
-  const COLS = 17;
+  const COLS = 22;
   return (
     <Table>
       <TableHeader>
@@ -404,42 +471,88 @@ function AdhearTable({
           <TableHead className="whitespace-nowrap">Frequency</TableHead>
           <TableHead className="whitespace-nowrap max-w-[180px]">Specific Conditions</TableHead>
           <TableHead className="whitespace-nowrap">Submitted By</TableHead>
-          <TableHead className="text-right sticky right-0 bg-card border-l whitespace-nowrap">Actions</TableHead>
+          <TableHead className="text-right sticky right-0 bg-card border-l whitespace-nowrap">
+            Actions
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {isLoading ? (
-          <TableRow><TableCell colSpan={COLS} className="h-24 text-center"><Skeleton className="w-full h-8" /></TableCell></TableRow>
+          <TableRow>
+            <TableCell colSpan={COLS} className="h-24 text-center">
+              <Skeleton className="w-full h-8" />
+            </TableCell>
+          </TableRow>
         ) : !records?.length ? (
-          <TableRow><TableCell colSpan={COLS} className="h-24 text-center text-muted-foreground">No ADHEAR records found</TableCell></TableRow>
+          <TableRow>
+            <TableCell colSpan={COLS} className="h-24 text-center text-muted-foreground">
+              No ADHEAR records found
+            </TableCell>
+          </TableRow>
         ) : (
           records.map((r, i) => (
             <TableRow key={r.id}>
               <TableCell className="font-medium whitespace-nowrap">{i + 1}</TableCell>
-              <TableCell className="whitespace-nowrap">{r.patientName}</TableCell>
-              <TableCell className="whitespace-nowrap">{r.dob}</TableCell>
-              <TableCell className="whitespace-nowrap">{r.phone}</TableCell>
-              <TableCell className="whitespace-nowrap">{r.serial}</TableCell>
-              <TableCell className="truncate max-w-[180px]" title={r.audio?.join(", ")}>{r.audio?.join(", ")}</TableCell>
-              <TableCell className="truncate max-w-[180px]" title={r.physical?.join(", ")}>{r.physical?.join(", ")}</TableCell>
-              <TableCell className="truncate max-w-[180px]" title={r.connectivity?.join(", ")}>{r.connectivity?.join(", ")}</TableCell>
-              <TableCell className="truncate max-w-[180px]" title={r.accessory?.join(", ")}>{r.accessory?.join(", ")}</TableCell>
-              <TableCell className="truncate max-w-[180px]" title={r.skin?.join(", ")}>{r.skin?.join(", ")}</TableCell>
-              <TableCell className="truncate max-w-[180px]" title={r.steps?.join(", ")}>{r.steps?.join(", ")}</TableCell>
-              <TableCell className="whitespace-nowrap">{r.resolved || "-"}</TableCell>
-              <TableCell className="truncate max-w-[180px]" title={r.resolvedHow}>{r.resolvedHow}</TableCell>
-              <TableCell className="truncate max-w-[180px]" title={r.nextAction}>{r.nextAction}</TableCell>
-              <TableCell className="whitespace-nowrap">{r.contactName}</TableCell>
-              <TableCell className="whitespace-nowrap">{r.contactEmail}</TableCell>
-              <TableCell className="truncate max-w-[180px]" title={r.issueDescription}>{r.issueDescription}</TableCell>
-              <TableCell className="whitespace-nowrap">{(r as any).problemFirstOccurred || "—"}</TableCell>
-              <TableCell className="whitespace-nowrap">{(r as any).occurrenceFrequency || "—"}</TableCell>
-              <TableCell className="truncate max-w-[180px]" title={(r as any).specificConditions}>{(r as any).specificConditions || "—"}</TableCell>
+              <TableCell className="whitespace-nowrap">{r.patientName ?? "—"}</TableCell>
+              <TableCell className="whitespace-nowrap">{r.dob ?? "—"}</TableCell>
+              <TableCell className="whitespace-nowrap">{r.phone ?? "—"}</TableCell>
+              <TableCell className="whitespace-nowrap">{r.serial ?? "—"}</TableCell>
+              <TableCell className="truncate max-w-[180px]" title={r.audio?.join(", ")}>
+                {r.audio?.join(", ")}
+              </TableCell>
+              <TableCell className="truncate max-w-[180px]" title={r.physical?.join(", ")}>
+                {r.physical?.join(", ")}
+              </TableCell>
+              <TableCell className="truncate max-w-[180px]" title={r.connectivity?.join(", ")}>
+                {r.connectivity?.join(", ")}
+              </TableCell>
+              <TableCell className="truncate max-w-[180px]" title={r.accessory?.join(", ")}>
+                {r.accessory?.join(", ")}
+              </TableCell>
+              <TableCell className="truncate max-w-[180px]" title={r.skin?.join(", ")}>
+                {r.skin?.join(", ")}
+              </TableCell>
+              <TableCell className="truncate max-w-[180px]" title={r.steps?.join(", ")}>
+                {r.steps?.join(", ")}
+              </TableCell>
+              <TableCell className="whitespace-nowrap">{r.resolved ?? "—"}</TableCell>
+              <TableCell className="truncate max-w-[180px]" title={r.resolvedHow ?? ""}>
+                {r.resolvedHow ?? "—"}
+              </TableCell>
+              <TableCell className="truncate max-w-[180px]" title={r.nextAction ?? ""}>
+                {r.nextAction ?? "—"}
+              </TableCell>
+              <TableCell className="whitespace-nowrap">{r.contactName ?? "—"}</TableCell>
+              <TableCell className="whitespace-nowrap">{r.contactEmail ?? "—"}</TableCell>
+              <TableCell className="truncate max-w-[180px]" title={r.issueDescription ?? ""}>
+                {r.issueDescription ?? "—"}
+              </TableCell>
+              <TableCell className="whitespace-nowrap">
+                {(r as any).problemFirstOccurred ?? "—"}
+              </TableCell>
+              <TableCell className="whitespace-nowrap">
+                {(r as any).occurrenceFrequency ?? "—"}
+              </TableCell>
+              <TableCell
+                className="truncate max-w-[180px]"
+                title={(r as any).specificConditions ?? ""}
+              >
+                {(r as any).specificConditions ?? "—"}
+              </TableCell>
+              <TableCell className="whitespace-nowrap">
+                {(r as any).submittedBy ?? "—"}
+              </TableCell>
               <TableCell className="text-right sticky right-0 bg-card border-l whitespace-nowrap">
                 <div className="flex justify-end gap-2 px-2">
-                  <Button variant="ghost" size="sm" onClick={() => onPrint(r, i + 1)}>Report</Button>
-                  <Button variant="outline" size="sm" onClick={() => onEdit(r)}>Edit</Button>
-                  <Button variant="destructive" size="sm" onClick={() => onDelete(r.id)}>Delete</Button>
+                  <Button variant="ghost" size="sm" onClick={() => onPrint(r, i + 1)}>
+                    Report
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => onEdit(r)}>
+                    Edit
+                  </Button>
+                  <Button variant="destructive" size="sm" onClick={() => onDelete(r.id)}>
+                    Delete
+                  </Button>
                 </div>
               </TableCell>
             </TableRow>
