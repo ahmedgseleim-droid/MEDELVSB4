@@ -17,11 +17,12 @@ import { PatientReportModal } from "@/components/patient-report-modal";
 import { ContactFooter } from "@/components/contact-footer";
 import { clearStoredToken } from "@/lib/auth";
 
-type Record = { id: number; patientName: string; dob: string; phone: string; serial: string; implant: string; issueDescription: string; conditions: string; problemFirstOccurred?: string; occurrenceFrequency?: string; specificConditions?: string; skin: string[]; visual: string[]; audio: string[]; physical: string[]; accessory: string[]; connectivity: string[]; steps: string[]; resolved: string; resolvedHow: string; nextAction: string; contactName: string; contactEmail: string; submittedBy?: string; };
+type Record = { id: number; patientName: string; dob: string; phone: string; serial: string; implant: string; issueDescription: string; conditions: string; problemFirstOccurred?: string; occurrenceFrequency?: string; specificConditions?: string; skin: string[]; visual: string[]; audio: string[]; physical: string[]; accessory: string[]; connectivity: string[]; steps: string[]; resolved: string; resolvedHow: string; nextAction: string; contactName: string; contactEmail: string; };
 type FormMode = "samba2" | "adhear";
 
-interface StaffViewProps { username: string; }
-
+interface StaffViewProps {
+  username: string;
+}
 export default function StaffView({ username }: StaffViewProps) {
   const [formMode, setFormMode]         = useState<FormMode>("samba2");
   const [editingRecord, setEditingRecord] = useState<Record | null>(null);

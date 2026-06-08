@@ -1,9 +1,10 @@
-import { pgTable, serial, text } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
 export const recordsTable = pgTable("records", {
   id: serial("id").primaryKey(),
+  createdAt: timestamp("created_at").notNull().defaultNow(), // 
   patientName: text("patient_name").notNull().default(""),
   dob: text("dob").notNull().default(""),
   phone: text("phone").notNull().default(""),

@@ -96,7 +96,7 @@ export default function Home() {
     if (formMode === "samba2") {
       headers = [
         "#", "Patient Name", "DOB", "Phone", "Serial", "Implant Type",
-        "Issue Description", "Conditions", "First Occurred", "Frequency", "Specific Conditions",
+        "Issue Description", "First Occurred", "Frequency", "Specific Conditions",
         "Skin Issues", "Visual Inspection", "Audio Issues", "Physical Issues",
         "Accessory Issues", "Connectivity Issues", "Steps Taken",
         "Resolved", "Resolved How", "Next Action",
@@ -106,7 +106,7 @@ export default function Home() {
         i + 1,
         escape(r.patientName), escape(r.dob), escape(r.phone),
         escape(r.serial), escape(r.implant),
-        escape(r.issueDescription), escape(r.conditions),
+        escape(r.issueDescription),
         escape((r as any).problemFirstOccurred),
         escape((r as any).occurrenceFrequency),
         escape((r as any).specificConditions),
@@ -326,11 +326,9 @@ function Samba2Table({
           <TableHead className="whitespace-nowrap">Contact Name</TableHead>
           <TableHead className="whitespace-nowrap">Contact Email</TableHead>
           <TableHead className="whitespace-nowrap max-w-[180px]">Issue Description</TableHead>
-          <TableHead className="whitespace-nowrap max-w-[180px]">Conditions</TableHead>
           <TableHead className="whitespace-nowrap">First Occurred</TableHead>
           <TableHead className="whitespace-nowrap">Frequency</TableHead>
           <TableHead className="whitespace-nowrap max-w-[180px]">Specific Conditions</TableHead>
-          <TableHead className="whitespace-nowrap">Submitted By</TableHead>
           <TableHead className="text-right sticky right-0 bg-card border-l whitespace-nowrap">
             Actions
           </TableHead>
@@ -390,9 +388,6 @@ function Samba2Table({
               <TableCell className="whitespace-nowrap">{r.contactEmail ?? "—"}</TableCell>
               <TableCell className="truncate max-w-[180px]" title={r.issueDescription ?? ""}>
                 {r.issueDescription ?? "—"}
-              </TableCell>
-              <TableCell className="truncate max-w-[180px]" title={r.conditions ?? ""}>
-                {r.conditions ?? "—"}
               </TableCell>
               <TableCell className="whitespace-nowrap">
                 {(r as any).problemFirstOccurred ?? "—"}
@@ -470,7 +465,6 @@ function AdhearTable({
           <TableHead className="whitespace-nowrap">First Occurred</TableHead>
           <TableHead className="whitespace-nowrap">Frequency</TableHead>
           <TableHead className="whitespace-nowrap max-w-[180px]">Specific Conditions</TableHead>
-          <TableHead className="whitespace-nowrap">Submitted By</TableHead>
           <TableHead className="text-right sticky right-0 bg-card border-l whitespace-nowrap">
             Actions
           </TableHead>
