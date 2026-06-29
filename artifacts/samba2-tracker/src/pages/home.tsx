@@ -431,7 +431,7 @@ function Samba2Table({
               </TableCell>
             </TableRow>
           ))
-        }
+        )}
       </TableBody>
     </Table>
   );
@@ -573,7 +573,7 @@ function AdhearTable({
               </TableCell>
             </TableRow>
           ))
-        }
+        )}
       </TableBody>
     </Table>
   );
