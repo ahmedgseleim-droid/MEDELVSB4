@@ -3,8 +3,17 @@ import { createToken, type UserRole } from "../middleware/requireAuth";
 
 const router: IRouter = Router();
 
-// Allowed staff usernames (add more here later)
-const STAFF_USERS = ["MEDELSTAFF"];
+// The 8 staff usernames — edit names here freely
+const STAFF_USERS = [
+  "STAFF1",
+  "STAFF2",
+  "STAFF3",
+  "STAFF4",
+  "STAFF5",
+  "STAFF6",
+  "STAFF7",
+  "STAFF8",
+];
 
 router.post("/auth/login", (req, res): void => {
   const { username, password } = req.body as { username?: string; password?: string };

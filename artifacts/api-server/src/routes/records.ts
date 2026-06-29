@@ -1,6 +1,9 @@
 import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
 import { db, recordsTable } from "@workspace/db";
+import type { Request } from "express";
+import type { AuthUser } from "../middleware/requireAuth";
+import { requireAdmin } from "../middleware/requireAuth";
 import {
   CreateRecordBody, UpdateRecordBody, GetRecordParams,
   UpdateRecordParams, DeleteRecordParams, GetRecordResponse,
@@ -8,9 +11,12 @@ import {
   GetRecordStatsResponse,
 } from "@workspace/api-zod";
 
+type AuthRequest = Request & { user: AuthUser };
+
 const router: IRouter = Router();
 
-router.get("/records/stats", async (req, res): Promise<void> => {
+// Stats — admin only
+router.get("/records/stats", requireAdmin, async (req, res): Promise<void> => {
   const records = await db.select().from(recordsTable);
   const total = records.length;
   const resolved = records.filter((r) => r.resolved === "Yes").length;
@@ -20,12 +26,26 @@ router.get("/records/stats", async (req, res): Promise<void> => {
   res.json(GetRecordStatsResponse.parse({ total, resolved, unresolved, bonebridge, soundbridge }));
 });
 
-router.get("/records", async (req, res): Promise<void> => {
+// My records — returns only records submitted by the logged-in staff user
+router.get("/records/mine", async (req, res): Promise<void> => {
+  const user = (req as AuthRequest).user;
+  const records = await db
+    .select()
+    .from(recordsTable)
+    .where(eq(recordsTable.submittedBy, user.username));
+  res.json(ListRecordsResponse.parse(records));
+});
+
+// All records — admin only
+router.get("/records", requireAdmin, async (req, res): Promise<void> => {
   const records = await db.select().from(recordsTable);
   res.json(ListRecordsResponse.parse(records));
 });
 
+// Create record — tag with submittedBy
 router.post("/records", async (req, res): Promise<void> => {
+  const user = (req as AuthRequest).user;
+
   const parsed = CreateRecordBody.safeParse(req.body);
   if (!parsed.success) {
     req.log.warn({ errors: parsed.error.message }, "Invalid record body");
@@ -34,6 +54,7 @@ router.post("/records", async (req, res): Promise<void> => {
   }
 
   const [record] = await db.insert(recordsTable).values({
+    submittedBy: user.username,                              // ← tag the record
     patientName: parsed.data.patientName ?? "",
     dob: parsed.data.dob ?? "",
     phone: parsed.data.phone ?? "",
@@ -62,18 +83,34 @@ router.post("/records", async (req, res): Promise<void> => {
 });
 
 router.get("/records/:id", async (req, res): Promise<void> => {
+  const user = (req as AuthRequest).user;
   const params = GetRecordParams.safeParse(req.params);
   if (!params.success) { res.status(400).json({ error: params.error.message }); return; }
 
   const [record] = await db.select().from(recordsTable).where(eq(recordsTable.id, params.data.id));
   if (!record) { res.status(404).json({ error: "Record not found" }); return; }
 
+  // Staff can only access their own records
+  if (user.role !== "admin" && record.submittedBy !== user.username) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+
   res.json(GetRecordResponse.parse(record));
 });
 
 router.put("/records/:id", async (req, res): Promise<void> => {
+  const user = (req as AuthRequest).user;
   const params = UpdateRecordParams.safeParse(req.params);
   if (!params.success) { res.status(400).json({ error: params.error.message }); return; }
+
+  // Check ownership before updating
+  const [existing] = await db.select().from(recordsTable).where(eq(recordsTable.id, params.data.id));
+  if (!existing) { res.status(404).json({ error: "Record not found" }); return; }
+  if (user.role !== "admin" && existing.submittedBy !== user.username) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
 
   const parsed = UpdateRecordBody.safeParse(req.body);
   if (!parsed.success) {
@@ -110,7 +147,7 @@ router.put("/records/:id", async (req, res): Promise<void> => {
   res.json(UpdateRecordResponse.parse(record));
 });
 
-router.delete("/records/:id", async (req, res): Promise<void> => {
+router.delete("/records/:id", requireAdmin, async (req, res): Promise<void> => {
   const params = DeleteRecordParams.safeParse(req.params);
   if (!params.success) { res.status(400).json({ error: params.error.message }); return; }
 
