@@ -288,6 +288,8 @@ export default function Home() {
 }
 
 // ─── SAMBA 2 Table ────────────────────────────────────────────────────────────
+// Column order matches form: Patient Info → Issue Description → Additional Info
+// → Skin & Visual → Common Issues → Steps → Resolution → Contact
 
 function Samba2Table({
   records,
@@ -302,33 +304,42 @@ function Samba2Table({
   onDelete: (id: number) => void;
   onPrint: (r: Record, rowNumber: number) => void;
 }) {
-  const COLS = 25;
+  const COLS = 24;
   return (
     <Table>
       <TableHeader>
         <TableRow>
+          {/* Patient & Device Info */}
           <TableHead className="w-12 whitespace-nowrap">#</TableHead>
           <TableHead className="whitespace-nowrap">Patient</TableHead>
           <TableHead className="whitespace-nowrap">DOB</TableHead>
           <TableHead className="whitespace-nowrap">Phone</TableHead>
           <TableHead className="whitespace-nowrap">Serial</TableHead>
           <TableHead className="whitespace-nowrap">Implant Type</TableHead>
+          {/* Issue Description */}
+          <TableHead className="whitespace-nowrap max-w-[180px]">Issue Description</TableHead>
+          {/* Additional Info */}
+          <TableHead className="whitespace-nowrap">First Occurred</TableHead>
+          <TableHead className="whitespace-nowrap">Frequency</TableHead>
+          <TableHead className="whitespace-nowrap max-w-[180px]">Specific Conditions</TableHead>
+          {/* Skin & Visual */}
           <TableHead className="whitespace-nowrap max-w-[180px]">Skin Issues</TableHead>
           <TableHead className="whitespace-nowrap max-w-[180px]">Visual Inspection</TableHead>
+          {/* Common Issues */}
           <TableHead className="whitespace-nowrap max-w-[180px]">Audio Issues</TableHead>
           <TableHead className="whitespace-nowrap max-w-[180px]">Physical Issues</TableHead>
           <TableHead className="whitespace-nowrap max-w-[180px]">Accessory Issues</TableHead>
           <TableHead className="whitespace-nowrap max-w-[180px]">Connectivity Issues</TableHead>
+          {/* Steps */}
           <TableHead className="whitespace-nowrap max-w-[180px]">Steps Taken</TableHead>
+          {/* Resolution */}
           <TableHead className="whitespace-nowrap">Resolved</TableHead>
           <TableHead className="whitespace-nowrap max-w-[180px]">Resolved How</TableHead>
           <TableHead className="whitespace-nowrap max-w-[180px]">Next Action</TableHead>
+          {/* Contact */}
           <TableHead className="whitespace-nowrap">Contact Name</TableHead>
           <TableHead className="whitespace-nowrap">Contact Email</TableHead>
-          <TableHead className="whitespace-nowrap max-w-[180px]">Issue Description</TableHead>
-          <TableHead className="whitespace-nowrap">First Occurred</TableHead>
-          <TableHead className="whitespace-nowrap">Frequency</TableHead>
-          <TableHead className="whitespace-nowrap max-w-[180px]">Specific Conditions</TableHead>
+          <TableHead className="whitespace-nowrap">Submitted By</TableHead>
           <TableHead className="text-right sticky right-0 bg-card border-l whitespace-nowrap">
             Actions
           </TableHead>
@@ -350,33 +361,48 @@ function Samba2Table({
         ) : (
           records.map((r, i) => (
             <TableRow key={r.id}>
+              {/* Patient & Device Info */}
               <TableCell className="font-medium whitespace-nowrap">{i + 1}</TableCell>
               <TableCell className="whitespace-nowrap">{r.patientName ?? "—"}</TableCell>
               <TableCell className="whitespace-nowrap">{r.dob ?? "—"}</TableCell>
               <TableCell className="whitespace-nowrap">{r.phone ?? "—"}</TableCell>
               <TableCell className="whitespace-nowrap">{r.serial ?? "—"}</TableCell>
               <TableCell className="whitespace-nowrap">{r.implant ?? "—"}</TableCell>
+              {/* Issue Description */}
+              <TableCell className="truncate max-w-[180px]" title={r.issueDescription ?? ""}>
+                {r.issueDescription ?? "—"}
+              </TableCell>
+              {/* Additional Info */}
+              <TableCell className="whitespace-nowrap">{(r as any).problemFirstOccurred ?? "—"}</TableCell>
+              <TableCell className="whitespace-nowrap">{(r as any).occurrenceFrequency ?? "—"}</TableCell>
+              <TableCell className="truncate max-w-[180px]" title={(r as any).specificConditions ?? ""}>
+                {(r as any).specificConditions ?? "—"}
+              </TableCell>
+              {/* Skin & Visual */}
               <TableCell className="truncate max-w-[180px]" title={r.skin?.join(", ")}>
-                {r.skin?.join(", ")}
+                {r.skin?.join(", ") || "—"}
               </TableCell>
               <TableCell className="truncate max-w-[180px]" title={r.visual?.join(", ")}>
-                {r.visual?.join(", ")}
+                {r.visual?.join(", ") || "—"}
               </TableCell>
+              {/* Common Issues */}
               <TableCell className="truncate max-w-[180px]" title={r.audio?.join(", ")}>
-                {r.audio?.join(", ")}
+                {r.audio?.join(", ") || "—"}
               </TableCell>
               <TableCell className="truncate max-w-[180px]" title={r.physical?.join(", ")}>
-                {r.physical?.join(", ")}
+                {r.physical?.join(", ") || "—"}
               </TableCell>
               <TableCell className="truncate max-w-[180px]" title={r.accessory?.join(", ")}>
-                {r.accessory?.join(", ")}
+                {r.accessory?.join(", ") || "—"}
               </TableCell>
               <TableCell className="truncate max-w-[180px]" title={r.connectivity?.join(", ")}>
-                {r.connectivity?.join(", ")}
+                {r.connectivity?.join(", ") || "—"}
               </TableCell>
+              {/* Steps */}
               <TableCell className="truncate max-w-[180px]" title={r.steps?.join(", ")}>
-                {r.steps?.join(", ")}
+                {r.steps?.join(", ") || "—"}
               </TableCell>
+              {/* Resolution */}
               <TableCell className="whitespace-nowrap">{r.resolved ?? "—"}</TableCell>
               <TableCell className="truncate max-w-[180px]" title={r.resolvedHow ?? ""}>
                 {r.resolvedHow ?? "—"}
@@ -384,37 +410,15 @@ function Samba2Table({
               <TableCell className="truncate max-w-[180px]" title={r.nextAction ?? ""}>
                 {r.nextAction ?? "—"}
               </TableCell>
+              {/* Contact */}
               <TableCell className="whitespace-nowrap">{r.contactName ?? "—"}</TableCell>
               <TableCell className="whitespace-nowrap">{r.contactEmail ?? "—"}</TableCell>
-              <TableCell className="truncate max-w-[180px]" title={r.issueDescription ?? ""}>
-                {r.issueDescription ?? "—"}
-              </TableCell>
-              <TableCell className="whitespace-nowrap">
-                {(r as any).problemFirstOccurred ?? "—"}
-              </TableCell>
-              <TableCell className="whitespace-nowrap">
-                {(r as any).occurrenceFrequency ?? "—"}
-              </TableCell>
-              <TableCell
-                className="truncate max-w-[180px]"
-                title={(r as any).specificConditions ?? ""}
-              >
-                {(r as any).specificConditions ?? "—"}
-              </TableCell>
-              <TableCell className="whitespace-nowrap">
-                {(r as any).submittedBy ?? "—"}
-              </TableCell>
+              <TableCell className="whitespace-nowrap">{(r as any).submittedBy ?? "—"}</TableCell>
               <TableCell className="text-right sticky right-0 bg-card border-l whitespace-nowrap">
                 <div className="flex justify-end gap-2 px-2">
-                  <Button variant="ghost" size="sm" onClick={() => onPrint(r, i + 1)}>
-                    Report
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => onEdit(r)}>
-                    Edit
-                  </Button>
-                  <Button variant="destructive" size="sm" onClick={() => onDelete(r.id)}>
-                    Delete
-                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => onPrint(r, i + 1)}>Report</Button>
+                  <Button variant="outline" size="sm" onClick={() => onEdit(r)}>Edit</Button>
+                  <Button variant="destructive" size="sm" onClick={() => onDelete(r.id)}>Delete</Button>
                 </div>
               </TableCell>
             </TableRow>
@@ -426,6 +430,8 @@ function Samba2Table({
 }
 
 // ─── ADHEAR Table ─────────────────────────────────────────────────────────────
+// Column order matches form: Patient Info → Issue Description → User Feedback
+// → Troubleshooting Checklist → Steps → Resolution → Contact
 
 function AdhearTable({
   records,
@@ -445,26 +451,34 @@ function AdhearTable({
     <Table>
       <TableHeader>
         <TableRow>
+          {/* Patient Info */}
           <TableHead className="w-12 whitespace-nowrap">#</TableHead>
           <TableHead className="whitespace-nowrap">Patient</TableHead>
           <TableHead className="whitespace-nowrap">DOB</TableHead>
           <TableHead className="whitespace-nowrap">Phone</TableHead>
           <TableHead className="whitespace-nowrap">Serial</TableHead>
+          {/* Issue Description */}
+          <TableHead className="whitespace-nowrap max-w-[180px]">Issue Description</TableHead>
+          {/* User Feedback */}
+          <TableHead className="whitespace-nowrap">First Occurred</TableHead>
+          <TableHead className="whitespace-nowrap">Frequency</TableHead>
+          <TableHead className="whitespace-nowrap max-w-[180px]">Specific Conditions</TableHead>
+          {/* Troubleshooting Checklist */}
           <TableHead className="whitespace-nowrap max-w-[180px]">Audio Quality Issues</TableHead>
           <TableHead className="whitespace-nowrap max-w-[180px]">Physical Device Issues</TableHead>
           <TableHead className="whitespace-nowrap max-w-[180px]">Connectivity Issues</TableHead>
           <TableHead className="whitespace-nowrap max-w-[180px]">Other Issues</TableHead>
+          {/* Steps */}
           <TableHead className="whitespace-nowrap max-w-[180px]">Adhesive Adapter Steps</TableHead>
           <TableHead className="whitespace-nowrap max-w-[180px]">Processor Steps</TableHead>
+          {/* Resolution */}
           <TableHead className="whitespace-nowrap">Resolved</TableHead>
           <TableHead className="whitespace-nowrap max-w-[180px]">Resolved How</TableHead>
           <TableHead className="whitespace-nowrap max-w-[180px]">Next Action</TableHead>
+          {/* Contact */}
           <TableHead className="whitespace-nowrap">Contact Name</TableHead>
           <TableHead className="whitespace-nowrap">Contact Email</TableHead>
-          <TableHead className="whitespace-nowrap max-w-[180px]">Issue Description</TableHead>
-          <TableHead className="whitespace-nowrap">First Occurred</TableHead>
-          <TableHead className="whitespace-nowrap">Frequency</TableHead>
-          <TableHead className="whitespace-nowrap max-w-[180px]">Specific Conditions</TableHead>
+          <TableHead className="whitespace-nowrap">Submitted By</TableHead>
           <TableHead className="text-right sticky right-0 bg-card border-l whitespace-nowrap">
             Actions
           </TableHead>
@@ -486,29 +500,43 @@ function AdhearTable({
         ) : (
           records.map((r, i) => (
             <TableRow key={r.id}>
+              {/* Patient Info */}
               <TableCell className="font-medium whitespace-nowrap">{i + 1}</TableCell>
               <TableCell className="whitespace-nowrap">{r.patientName ?? "—"}</TableCell>
               <TableCell className="whitespace-nowrap">{r.dob ?? "—"}</TableCell>
               <TableCell className="whitespace-nowrap">{r.phone ?? "—"}</TableCell>
               <TableCell className="whitespace-nowrap">{r.serial ?? "—"}</TableCell>
+              {/* Issue Description */}
+              <TableCell className="truncate max-w-[180px]" title={r.issueDescription ?? ""}>
+                {r.issueDescription ?? "—"}
+              </TableCell>
+              {/* User Feedback */}
+              <TableCell className="whitespace-nowrap">{(r as any).problemFirstOccurred ?? "—"}</TableCell>
+              <TableCell className="whitespace-nowrap">{(r as any).occurrenceFrequency ?? "—"}</TableCell>
+              <TableCell className="truncate max-w-[180px]" title={(r as any).specificConditions ?? ""}>
+                {(r as any).specificConditions ?? "—"}
+              </TableCell>
+              {/* Troubleshooting Checklist */}
               <TableCell className="truncate max-w-[180px]" title={r.audio?.join(", ")}>
-                {r.audio?.join(", ")}
+                {r.audio?.join(", ") || "—"}
               </TableCell>
               <TableCell className="truncate max-w-[180px]" title={r.physical?.join(", ")}>
-                {r.physical?.join(", ")}
+                {r.physical?.join(", ") || "—"}
               </TableCell>
               <TableCell className="truncate max-w-[180px]" title={r.connectivity?.join(", ")}>
-                {r.connectivity?.join(", ")}
+                {r.connectivity?.join(", ") || "—"}
               </TableCell>
               <TableCell className="truncate max-w-[180px]" title={r.accessory?.join(", ")}>
-                {r.accessory?.join(", ")}
+                {r.accessory?.join(", ") || "—"}
               </TableCell>
+              {/* Steps */}
               <TableCell className="truncate max-w-[180px]" title={r.skin?.join(", ")}>
-                {r.skin?.join(", ")}
+                {r.skin?.join(", ") || "—"}
               </TableCell>
               <TableCell className="truncate max-w-[180px]" title={r.steps?.join(", ")}>
-                {r.steps?.join(", ")}
+                {r.steps?.join(", ") || "—"}
               </TableCell>
+              {/* Resolution */}
               <TableCell className="whitespace-nowrap">{r.resolved ?? "—"}</TableCell>
               <TableCell className="truncate max-w-[180px]" title={r.resolvedHow ?? ""}>
                 {r.resolvedHow ?? "—"}
@@ -516,37 +544,15 @@ function AdhearTable({
               <TableCell className="truncate max-w-[180px]" title={r.nextAction ?? ""}>
                 {r.nextAction ?? "—"}
               </TableCell>
+              {/* Contact */}
               <TableCell className="whitespace-nowrap">{r.contactName ?? "—"}</TableCell>
               <TableCell className="whitespace-nowrap">{r.contactEmail ?? "—"}</TableCell>
-              <TableCell className="truncate max-w-[180px]" title={r.issueDescription ?? ""}>
-                {r.issueDescription ?? "—"}
-              </TableCell>
-              <TableCell className="whitespace-nowrap">
-                {(r as any).problemFirstOccurred ?? "—"}
-              </TableCell>
-              <TableCell className="whitespace-nowrap">
-                {(r as any).occurrenceFrequency ?? "—"}
-              </TableCell>
-              <TableCell
-                className="truncate max-w-[180px]"
-                title={(r as any).specificConditions ?? ""}
-              >
-                {(r as any).specificConditions ?? "—"}
-              </TableCell>
-              <TableCell className="whitespace-nowrap">
-                {(r as any).submittedBy ?? "—"}
-              </TableCell>
+              <TableCell className="whitespace-nowrap">{(r as any).submittedBy ?? "—"}</TableCell>
               <TableCell className="text-right sticky right-0 bg-card border-l whitespace-nowrap">
                 <div className="flex justify-end gap-2 px-2">
-                  <Button variant="ghost" size="sm" onClick={() => onPrint(r, i + 1)}>
-                    Report
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => onEdit(r)}>
-                    Edit
-                  </Button>
-                  <Button variant="destructive" size="sm" onClick={() => onDelete(r.id)}>
-                    Delete
-                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => onPrint(r, i + 1)}>Report</Button>
+                  <Button variant="outline" size="sm" onClick={() => onEdit(r)}>Edit</Button>
+                  <Button variant="destructive" size="sm" onClick={() => onDelete(r.id)}>Delete</Button>
                 </div>
               </TableCell>
             </TableRow>
