@@ -304,7 +304,7 @@ function Samba2Table({
   onDelete: (id: number) => void;
   onPrint: (r: Record, rowNumber: number) => void;
 }) {
-  const COLS = 24;
+  const COLS = 25;
   return (
     <Table>
       <TableHeader>
@@ -334,6 +334,7 @@ function Samba2Table({
           <TableHead className="whitespace-nowrap max-w-[180px]">Steps Taken</TableHead>
           {/* Resolution */}
           <TableHead className="whitespace-nowrap">Resolved</TableHead>
+          <TableHead className="whitespace-nowrap">Time to Resolve</TableHead>
           <TableHead className="whitespace-nowrap max-w-[180px]">Resolved How</TableHead>
           <TableHead className="whitespace-nowrap max-w-[180px]">Next Action</TableHead>
           {/* Contact */}
@@ -404,6 +405,13 @@ function Samba2Table({
               </TableCell>
               {/* Resolution */}
               <TableCell className="whitespace-nowrap">{r.resolved ?? "—"}</TableCell>
+              <TableCell className="whitespace-nowrap">
+                {r.resolved === "Yes" ? (
+                  <span className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold" style={{ background: "#dcfce7", color: "#166534" }}>
+                    Yes
+                  </span>
+                ) : "—"}
+              </TableCell>
               <TableCell className="truncate max-w-[180px]" title={r.resolvedHow ?? ""}>
                 {r.resolvedHow ?? "—"}
               </TableCell>
@@ -423,7 +431,7 @@ function Samba2Table({
               </TableCell>
             </TableRow>
           ))
-        )}
+        }
       </TableBody>
     </Table>
   );
@@ -446,7 +454,7 @@ function AdhearTable({
   onDelete: (id: number) => void;
   onPrint: (r: Record, rowNumber: number) => void;
 }) {
-  const COLS = 22;
+  const COLS = 23;
   return (
     <Table>
       <TableHeader>
@@ -473,6 +481,7 @@ function AdhearTable({
           <TableHead className="whitespace-nowrap max-w-[180px]">Processor Steps</TableHead>
           {/* Resolution */}
           <TableHead className="whitespace-nowrap">Resolved</TableHead>
+          <TableHead className="whitespace-nowrap">Time to Resolve</TableHead>
           <TableHead className="whitespace-nowrap max-w-[180px]">Resolved How</TableHead>
           <TableHead className="whitespace-nowrap max-w-[180px]">Next Action</TableHead>
           {/* Contact */}
@@ -538,6 +547,13 @@ function AdhearTable({
               </TableCell>
               {/* Resolution */}
               <TableCell className="whitespace-nowrap">{r.resolved ?? "—"}</TableCell>
+              <TableCell className="whitespace-nowrap">
+                {r.resolved === "Yes" ? (
+                  <span className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold" style={{ background: "#dcfce7", color: "#166534" }}>
+                    Yes
+                  </span>
+                ) : "—"}
+              </TableCell>
               <TableCell className="truncate max-w-[180px]" title={r.resolvedHow ?? ""}>
                 {r.resolvedHow ?? "—"}
               </TableCell>
@@ -557,7 +573,7 @@ function AdhearTable({
               </TableCell>
             </TableRow>
           ))
-        )}
+        }
       </TableBody>
     </Table>
   );
