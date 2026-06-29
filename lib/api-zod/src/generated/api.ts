@@ -13,6 +13,9 @@ export const HealthCheckResponse = zod.object({
  * @summary List all records
  */
 export const ListRecordsResponseItem = zod.object({
+  "id": zod.number(),
+  "createdAt": zod.string().optional(),
+  "firstResolvedAt": zod.string().nullable().optional(),
   "patientName": zod.string().optional(),
   "dob": zod.string().optional(),
   "phone": zod.string().optional(),
@@ -34,10 +37,9 @@ export const ListRecordsResponseItem = zod.object({
   "resolvedHow": zod.string().optional(),
   "nextAction": zod.string().optional(),
   "contactName": zod.string().optional(),
-  "contactEmail": zod.string().optional()
-}).and(zod.object({
-  "id": zod.number()
-}))
+  "contactEmail": zod.string().optional(),
+  "submittedBy": zod.string().optional()
+})
 export const ListRecordsResponse = zod.array(ListRecordsResponseItem)
 
 /**
@@ -76,6 +78,9 @@ export const GetRecordParams = zod.object({
 })
 
 export const GetRecordResponse = zod.object({
+  "id": zod.number(),
+  "createdAt": zod.string().optional(),
+  "firstResolvedAt": zod.string().nullable().optional(),
   "patientName": zod.string().optional(),
   "dob": zod.string().optional(),
   "phone": zod.string().optional(),
@@ -97,10 +102,9 @@ export const GetRecordResponse = zod.object({
   "resolvedHow": zod.string().optional(),
   "nextAction": zod.string().optional(),
   "contactName": zod.string().optional(),
-  "contactEmail": zod.string().optional()
-}).and(zod.object({
-  "id": zod.number()
-}))
+  "contactEmail": zod.string().optional(),
+  "submittedBy": zod.string().optional()
+})
 
 /**
  * @summary Update a record
@@ -135,6 +139,9 @@ export const UpdateRecordBody = zod.object({
 })
 
 export const UpdateRecordResponse = zod.object({
+  "id": zod.number(),
+  "createdAt": zod.string().optional(),
+  "firstResolvedAt": zod.string().nullable().optional(),
   "patientName": zod.string().optional(),
   "dob": zod.string().optional(),
   "phone": zod.string().optional(),
@@ -156,10 +163,9 @@ export const UpdateRecordResponse = zod.object({
   "resolvedHow": zod.string().optional(),
   "nextAction": zod.string().optional(),
   "contactName": zod.string().optional(),
-  "contactEmail": zod.string().optional()
-}).and(zod.object({
-  "id": zod.number()
-}))
+  "contactEmail": zod.string().optional(),
+  "submittedBy": zod.string().optional()
+})
 
 /**
  * @summary Delete a record

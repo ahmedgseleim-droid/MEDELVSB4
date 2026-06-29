@@ -8,6 +8,25 @@ import {
 } from "@workspace/api-client-react";
 import type { Record as ApiRecord } from "@workspace/api-client-react";
 type Record = ApiRecord & { submittedBy?: string };
+
+function formatDuration(createdAt: string | undefined, firstResolvedAt: string | null | undefined): string {
+  if (!createdAt || !firstResolvedAt) return "—";
+  const start = new Date(createdAt).getTime();
+  const end = new Date(firstResolvedAt).getTime();
+  const diffMs = end - start;
+  if (diffMs < 0) return "—";
+  const minutes = Math.floor(diffMs / 60000);
+  if (minutes < 1) return "< 1 min";
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  const remMin = minutes % 60;
+  if (hours < 24) return remMin ? `${hours} hr ${remMin} min` : `${hours} hr`;
+  const days = Math.floor(hours / 24);
+  const remHr = hours % 24;
+  if (days < 30) return remHr ? `${days} day${days > 1 ? "s" : ""} ${remHr} hr` : `${days} day${days > 1 ? "s" : ""}`;
+  const months = Math.floor(days / 30);
+  return `${months} month${months > 1 ? "s" : ""}`;
+}
 import { Download } from "lucide-react";
 import { clearStoredToken } from "@/lib/auth";
 import {
@@ -406,11 +425,7 @@ function Samba2Table({
               {/* Resolution */}
               <TableCell className="whitespace-nowrap">{r.resolved ?? "—"}</TableCell>
               <TableCell className="whitespace-nowrap">
-                {r.resolved === "Yes" ? (
-                  <span className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold" style={{ background: "#dcfce7", color: "#166534" }}>
-                    Yes
-                  </span>
-                ) : "—"}
+                {formatDuration(r.createdAt, r.firstResolvedAt)}
               </TableCell>
               <TableCell className="truncate max-w-[180px]" title={r.resolvedHow ?? ""}>
                 {r.resolvedHow ?? "—"}
@@ -548,11 +563,7 @@ function AdhearTable({
               {/* Resolution */}
               <TableCell className="whitespace-nowrap">{r.resolved ?? "—"}</TableCell>
               <TableCell className="whitespace-nowrap">
-                {r.resolved === "Yes" ? (
-                  <span className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold" style={{ background: "#dcfce7", color: "#166534" }}>
-                    Yes
-                  </span>
-                ) : "—"}
+                {formatDuration(r.createdAt, r.firstResolvedAt)}
               </TableCell>
               <TableCell className="truncate max-w-[180px]" title={r.resolvedHow ?? ""}>
                 {r.resolvedHow ?? "—"}

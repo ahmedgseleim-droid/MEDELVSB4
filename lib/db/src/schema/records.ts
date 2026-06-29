@@ -5,7 +5,8 @@ import { z } from "zod/v4";
 export const recordsTable = pgTable("records", {
   id: serial("id").primaryKey(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  submittedBy: text("submitted_by").notNull().default(""),   // ← NEW: tracks which staff user submitted this
+  firstResolvedAt: timestamp("first_resolved_at"),
+  submittedBy: text("submitted_by").notNull().default(""),
   patientName: text("patient_name").notNull().default(""),
   dob: text("dob").notNull().default(""),
   phone: text("phone").notNull().default(""),

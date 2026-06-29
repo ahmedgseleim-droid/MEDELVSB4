@@ -53,8 +53,9 @@ router.post("/records", async (req, res): Promise<void> => {
     return;
   }
 
+  const now = new Date();
   const [record] = await db.insert(recordsTable).values({
-    submittedBy: user.username,                              // ← tag the record
+    submittedBy: user.username,
     patientName: parsed.data.patientName ?? "",
     dob: parsed.data.dob ?? "",
     phone: parsed.data.phone ?? "",
@@ -77,6 +78,7 @@ router.post("/records", async (req, res): Promise<void> => {
     nextAction: parsed.data.nextAction ?? "",
     contactName: parsed.data.contactName ?? "",
     contactEmail: parsed.data.contactEmail ?? "",
+    firstResolvedAt: parsed.data.resolved === "Yes" ? now : null,
   }).returning();
 
   res.status(201).json(GetRecordResponse.parse(record));
@@ -118,7 +120,8 @@ router.put("/records/:id", async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message }); return;
   }
 
-  const [record] = await db.update(recordsTable).set({
+  const now = new Date();
+  const setFields: Record<string, unknown> = {
     patientName: parsed.data.patientName ?? "",
     dob: parsed.data.dob ?? "",
     phone: parsed.data.phone ?? "",
@@ -141,7 +144,14 @@ router.put("/records/:id", async (req, res): Promise<void> => {
     nextAction: parsed.data.nextAction ?? "",
     contactName: parsed.data.contactName ?? "",
     contactEmail: parsed.data.contactEmail ?? "",
-  }).where(eq(recordsTable.id, params.data.id)).returning();
+  };
+
+  // Set firstResolvedAt only on first resolution
+  if (parsed.data.resolved === "Yes" && !existing.firstResolvedAt) {
+    setFields.firstResolvedAt = now;
+  }
+
+  const [record] = await db.update(recordsTable).set(setFields).where(eq(recordsTable.id, params.data.id)).returning();
 
   if (!record) { res.status(404).json({ error: "Record not found" }); return; }
   res.json(UpdateRecordResponse.parse(record));

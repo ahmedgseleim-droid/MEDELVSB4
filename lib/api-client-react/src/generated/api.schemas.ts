@@ -33,6 +33,8 @@ export interface RecordInput {
 
 export type Record = RecordInput & {
   id: number;
+  createdAt?: string;
+  firstResolvedAt?: string | null;
 };
 
 export interface DeleteResponse {
