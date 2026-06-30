@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db, recordsTable } from "@workspace/db";
 import type { Request } from "express";
 import type { AuthUser } from "../middleware/requireAuth";
@@ -55,7 +55,6 @@ router.post("/records", async (req, res): Promise<void> => {
     return;
   }
 
-  const now = new Date();
   const [record] = await db.insert(recordsTable).values({
     submittedBy: user.username,
     patientName: parsed.data.patientName ?? "",
@@ -80,7 +79,7 @@ router.post("/records", async (req, res): Promise<void> => {
     nextAction: parsed.data.nextAction ?? "",
     contactName: parsed.data.contactName ?? "",
     contactEmail: parsed.data.contactEmail ?? "",
-    firstResolvedAt: parsed.data.resolved === "Yes" ? now : null,
+    firstResolvedAt: parsed.data.resolved === "Yes" ? sql`now()` : null,
   }).returning();
 
   res.status(201).json(GetRecordResponse.parse({
