@@ -425,7 +425,7 @@ function Samba2Table({
               {/* Resolution */}
               <TableCell className="whitespace-nowrap">{r.resolved ?? "—"}</TableCell>
               <TableCell className="whitespace-nowrap">
-                {formatDuration(r.createdAt, r.firstResolvedAt)}
+                {r.resolved === "Yes" ? formatDuration(r.createdAt, r.firstResolvedAt) : "—"}
               </TableCell>
               <TableCell className="truncate max-w-[180px]" title={r.resolvedHow ?? ""}>
                 {r.resolvedHow ?? "—"}
@@ -563,7 +563,7 @@ function AdhearTable({
               {/* Resolution */}
               <TableCell className="whitespace-nowrap">{r.resolved ?? "—"}</TableCell>
               <TableCell className="whitespace-nowrap">
-                {formatDuration(r.createdAt, r.firstResolvedAt)}
+                {r.resolved === "Yes" ? formatDuration(r.createdAt, r.firstResolvedAt) : "—"}
               </TableCell>
               <TableCell className="truncate max-w-[180px]" title={r.resolvedHow ?? ""}>
                 {r.resolvedHow ?? "—"}

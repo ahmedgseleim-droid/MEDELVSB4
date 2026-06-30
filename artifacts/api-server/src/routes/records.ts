@@ -152,9 +152,11 @@ router.put("/records/:id", async (req, res): Promise<void> => {
     contactEmail: parsed.data.contactEmail ?? "",
   };
 
-  // Set firstResolvedAt only on first resolution
+  // Set firstResolvedAt on resolution, clear when unresolved
   if (parsed.data.resolved === "Yes" && !existing.firstResolvedAt) {
     setFields.firstResolvedAt = now;
+  } else if (parsed.data.resolved === "No") {
+    setFields.firstResolvedAt = null;
   }
 
   const [record] = await db.update(recordsTable).set(setFields).where(eq(recordsTable.id, params.data.id)).returning();

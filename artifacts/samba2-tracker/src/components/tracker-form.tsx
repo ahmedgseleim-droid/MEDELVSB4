@@ -351,7 +351,7 @@ export function TrackerForm({
                 <FormField control={form.control} name="implant" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Implant Type</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl><SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger></FormControl>
                       <SelectContent>
                         <SelectItem value="Bonebridge (BCI 601)">Bonebridge (BCI 601)</SelectItem>
@@ -433,7 +433,7 @@ export function TrackerForm({
                 <FormField control={form.control} name="resolved" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Was the issue resolved?</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl><SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger></FormControl>
                       <SelectContent>
                         <SelectItem value="Yes">Yes</SelectItem>
