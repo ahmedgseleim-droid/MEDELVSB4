@@ -15,6 +15,8 @@ type AuthRequest = Request & { user: AuthUser };
 
 const router: IRouter = Router();
 
+function toISO(v: unknown) { return v instanceof Date ? v.toISOString() : v; }
+
 // Stats — admin only
 router.get("/records/stats", requireAdmin, async (req, res): Promise<void> => {
   const records = await db.select().from(recordsTable);
@@ -33,13 +35,13 @@ router.get("/records/mine", async (req, res): Promise<void> => {
     .select()
     .from(recordsTable)
     .where(eq(recordsTable.submittedBy, user.username));
-  res.json(ListRecordsResponse.parse(records));
+  res.json(ListRecordsResponse.parse(records.map(r => ({ ...r, createdAt: toISO(r.createdAt), firstResolvedAt: toISO(r.firstResolvedAt) }))));
 });
 
 // All records — admin only
 router.get("/records", requireAdmin, async (req, res): Promise<void> => {
   const records = await db.select().from(recordsTable);
-  res.json(ListRecordsResponse.parse(records));
+  res.json(ListRecordsResponse.parse(records.map(r => ({ ...r, createdAt: toISO(r.createdAt), firstResolvedAt: toISO(r.firstResolvedAt) }))));
 });
 
 // Create record — tag with submittedBy
@@ -81,7 +83,11 @@ router.post("/records", async (req, res): Promise<void> => {
     firstResolvedAt: parsed.data.resolved === "Yes" ? now : null,
   }).returning();
 
-  res.status(201).json(GetRecordResponse.parse(record));
+  res.status(201).json(GetRecordResponse.parse({
+    ...record,
+    createdAt: toISO(record.createdAt),
+    firstResolvedAt: toISO(record.firstResolvedAt),
+  }));
 });
 
 router.get("/records/:id", async (req, res): Promise<void> => {
@@ -98,7 +104,7 @@ router.get("/records/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  res.json(GetRecordResponse.parse(record));
+  res.json(GetRecordResponse.parse({ ...record, createdAt: toISO(record.createdAt), firstResolvedAt: toISO(record.firstResolvedAt) }));
 });
 
 router.put("/records/:id", async (req, res): Promise<void> => {
@@ -154,7 +160,7 @@ router.put("/records/:id", async (req, res): Promise<void> => {
   const [record] = await db.update(recordsTable).set(setFields).where(eq(recordsTable.id, params.data.id)).returning();
 
   if (!record) { res.status(404).json({ error: "Record not found" }); return; }
-  res.json(UpdateRecordResponse.parse(record));
+  res.json(UpdateRecordResponse.parse({ ...record, createdAt: toISO(record.createdAt), firstResolvedAt: toISO(record.firstResolvedAt) }));
 });
 
 router.delete("/records/:id", requireAdmin, async (req, res): Promise<void> => {
