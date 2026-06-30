@@ -1,11 +1,11 @@
 import { z } from "zod";
 
 export const recordSchema = z.object({
-  patientName: z.string().min(1, "Required"),
-  dob: z.string().min(1, "Required"),
-  phone: z.string().min(1, "Required"),
-  serial: z.string().min(1, "Required"),
-  implant: z.string().min(1, "Required"),
+  patientName: z.string().optional(),
+  dob: z.string().optional(),
+  phone: z.string().optional(),
+  serial: z.string().optional(),
+  implant: z.string().optional(),
   issueDescription: z.string().optional(),
   conditions: z.string().optional(),
   problemFirstOccurred: z.string().optional(),
