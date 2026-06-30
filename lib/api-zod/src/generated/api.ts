@@ -14,8 +14,8 @@ export const HealthCheckResponse = zod.object({
  */
 export const ListRecordsResponseItem = zod.object({
   "id": zod.number(),
-  "createdAt": zod.string().optional(),
-  "firstResolvedAt": zod.string().nullable().optional(),
+  "createdAt": zod.string().or(zod.date()).optional(),
+  "firstResolvedAt": zod.string().or(zod.date()).nullable().optional(),
   "patientName": zod.string().optional(),
   "dob": zod.string().optional(),
   "phone": zod.string().optional(),
@@ -79,8 +79,8 @@ export const GetRecordParams = zod.object({
 
 export const GetRecordResponse = zod.object({
   "id": zod.number(),
-  "createdAt": zod.string().optional(),
-  "firstResolvedAt": zod.string().nullable().optional(),
+  "createdAt": zod.string().or(zod.date()).optional(),
+  "firstResolvedAt": zod.string().or(zod.date()).nullable().optional(),
   "patientName": zod.string().optional(),
   "dob": zod.string().optional(),
   "phone": zod.string().optional(),
@@ -140,8 +140,8 @@ export const UpdateRecordBody = zod.object({
 
 export const UpdateRecordResponse = zod.object({
   "id": zod.number(),
-  "createdAt": zod.string().optional(),
-  "firstResolvedAt": zod.string().nullable().optional(),
+  "createdAt": zod.string().or(zod.date()).optional(),
+  "firstResolvedAt": zod.string().or(zod.date()).nullable().optional(),
   "patientName": zod.string().optional(),
   "dob": zod.string().optional(),
   "phone": zod.string().optional(),
