@@ -30,7 +30,7 @@ router.get("/records/stats", requireAdmin, async (req, res): Promise<void> => {
 
 // My records — returns only records submitted by the logged-in staff user
 router.get("/records/mine", async (req, res): Promise<void> => {
-  const user = (req as AuthRequest).user;
+  const user = (req as unknown as AuthRequest).user;
   const records = await db
     .select()
     .from(recordsTable)
@@ -46,7 +46,7 @@ router.get("/records", requireAdmin, async (req, res): Promise<void> => {
 
 // Create record — tag with submittedBy
 router.post("/records", async (req, res): Promise<void> => {
-  const user = (req as AuthRequest).user;
+  const user = (req as unknown as AuthRequest).user;
 
   const parsed = CreateRecordBody.safeParse(req.body);
   if (!parsed.success) {
@@ -91,7 +91,7 @@ router.post("/records", async (req, res): Promise<void> => {
 });
 
 router.get("/records/:id", async (req, res): Promise<void> => {
-  const user = (req as AuthRequest).user;
+  const user = (req as unknown as AuthRequest).user;
   const params = GetRecordParams.safeParse(req.params);
   if (!params.success) { res.status(400).json({ error: params.error.message }); return; }
 
@@ -108,7 +108,7 @@ router.get("/records/:id", async (req, res): Promise<void> => {
 });
 
 router.put("/records/:id", async (req, res): Promise<void> => {
-  const user = (req as AuthRequest).user;
+  const user = (req as unknown as AuthRequest).user;
   const params = UpdateRecordParams.safeParse(req.params);
   if (!params.success) { res.status(400).json({ error: params.error.message }); return; }
 
